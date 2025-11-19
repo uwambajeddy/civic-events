@@ -14,79 +14,68 @@
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen">
     <!-- Header will be injected here by GlobalNav -->
-    
+
     <!-- Main Content -->
-    <main class="flex-1">
+    <main class="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <!-- Loading State -->
-        <div id="loading-container" class="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <div class="animate-pulse space-y-3">
-                <div class="h-8 bg-gray-300 rounded w-1/3"></div>
-                <div class="h-24 bg-gray-300 rounded"></div>
-                <div class="h-4 bg-gray-300 rounded w-full"></div>
-            </div>
+        <div id="loading-container" class="animate-pulse space-y-3">
+            <div class="h-8 bg-gray-300 rounded w-1/3"></div>
+            <div class="h-24 bg-gray-300 rounded"></div>
+            <div class="h-4 bg-gray-300 rounded w-full"></div>
         </div>
 
         <!-- Announcement Details -->
-        <div id="announcement-detail" class="hidden">
+        <div id="announcement-detail" class="hidden space-y-8">
+            <!-- Back Button -->
+            <a href="announcements.html" class="inline-flex items-center text-blue-600 hover:text-blue-700">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to announcements
+            </a>
+
             <!-- Hero -->
-            <section class="bg-gradient-to-r from-purple-800 via-purple-700 to-fuchsia-600 text-white">
-                <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14 space-y-6">
-                    <a href="announcements.html" class="inline-flex items-center gap-2 text-white/80 hover:text-white font-semibold">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                        </svg>
-                        Back to announcements
-                    </a>
-                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                        <div class="space-y-3 max-w-3xl">
-                            <p class="inline-flex items-center bg-white/10 px-3 py-1 rounded-full text-sm font-semibold tracking-wide">
-                                <span class="flex h-2 w-2 rounded-full bg-white mr-2 animate-pulse"></span>
-                                Announcement highlight
-                            </p>
-                            <h1 id="announcement-title" class="text-4xl lg:text-5xl font-black leading-tight drop-shadow"></h1>
-                            <div class="flex flex-wrap items-center gap-3 text-white/90">
-                                <p id="announcement-date" class="text-lg"></p>
-                                <span id="announcement-status" class="status-badge live inline"></span>
-                            </div>
+            <section class="event-hero-panel">
+                <div class="event-hero-grid">
+                    <div class="event-hero-copy">
+                        <span class="status-pill" id="announcement-status">Announcement highlight</span>
+                        <h1 id="announcement-title" class="event-hero-title"></h1>
+                        <p id="announcement-date" class="event-hero-subtitle"></p>
+                        <p class="event-hero-note">Listen in and share timely updates with your community.</p>
+                        <div class="event-hero-actions">
+                            <a href="#audio-container" class="btn-modern-primary">Play announcement</a>
+                            <div id="admin-actions" class="hidden space-x-2"></div>
                         </div>
-                        <div id="admin-actions" class="hidden space-x-2"></div>
                     </div>
+                    <div class="event-hero-media" id="announcement-hero-media"></div>
                 </div>
             </section>
 
             <!-- Content -->
-            <section class="container mx-auto px-4 sm:px-6 lg:px-8 -mt-12 lg:-mt-16 relative z-10 pb-14">
-                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-                    <div class="grid lg:grid-cols-3 gap-0">
-                        <div class="lg:col-span-2 p-8 space-y-6">
-                            <h2 class="text-2xl font-semibold text-gray-900">Audio announcement</h2>
-                            <div id="audio-container" class="bg-gray-50 rounded-xl p-6 border border-gray-100">
-                                <!-- Audio player will be rendered here -->
-                            </div>
+            <section class="event-panel space-y-6">
+                <div id="audio-container" class="event-panel bg-slate-50 border border-slate-200 shadow-none"></div>
 
-                            <div id="transcript-section" class="space-y-3">
-                                <h2 class="text-xl font-semibold text-gray-900">Transcript</h2>
-                                <div id="transcript-content" class="prose max-w-none"></div>
-                            </div>
+                <div id="transcript-section" class="space-y-3">
+                    <h2 class="text-xl font-semibold text-gray-900">Transcript</h2>
+                    <div id="transcript-content" class="prose max-w-none"></div>
+                </div>
+
+                <div class="event-panel bg-slate-50 space-y-4 shadow-none border border-slate-200">
+                    <div class="flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold">AU</div>
+                        <div>
+                            <p class="text-sm text-gray-500">Playback tips</p>
+                            <p class="text-gray-800 font-semibold">Use space to play/pause</p>
                         </div>
-                        <div class="p-8 bg-gray-50 border-l border-gray-100 space-y-4">
-                            <div class="flex items-center gap-3">
-                                <div class="h-10 w-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold">AU</div>
-                                <div>
-                                    <p class="text-sm text-gray-500">Playback tips</p>
-                                    <p class="text-gray-800 font-semibold">Use space to play/pause</p>
-                                </div>
-                            </div>
-                            <ul class="text-sm text-gray-600 space-y-2 list-disc list-inside">
-                                <li>Speed up or slow down playback in your browser controls.</li>
-                                <li>Read along with transcripts when available.</li>
-                                <li>Use headphones for the clearest experience.</li>
-                            </ul>
-                            <div class="flex flex-wrap gap-2">
-                                <a href="announcements.html" class="btn-secondary">Back to announcements</a>
-                                <a href="announcement-create.html" class="btn-primary">Record new update</a>
-                            </div>
-                        </div>
+                    </div>
+                    <ul class="text-sm text-gray-600 space-y-2 list-disc list-inside">
+                        <li>Speed up or slow down playback in your browser controls.</li>
+                        <li>Read along with transcripts when available.</li>
+                        <li>Use headphones for the clearest experience.</li>
+                    </ul>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="announcements.html" class="btn-modern-outline">Back to announcements</a>
+                        <a href="announcement-create.html" class="btn-modern-primary">Record new update</a>
                     </div>
                 </div>
             </section>
@@ -95,7 +84,7 @@
         <!-- Error State -->
         <div id="error-container" class="hidden text-center py-12">
             <p class="text-red-600 text-lg mb-4">Failed to load announcement</p>
-            <a href="announcements.html" class="btn-primary">
+            <a href="announcements.html" class="btn-modern-primary">
                 Back to Announcements
             </a>
         </div>
@@ -214,7 +203,7 @@
                 $('#admin-actions').html(`
                     <button
                         id="delete-btn"
-                        class="btn-secondary text-red-700 border-red-200 bg-red-50 hover:bg-red-100"
+                        class="btn-modern-outline text-red-700 border-red-200 bg-red-50 hover:bg-red-100"
                         type="button"
                     >
                         Delete announcement

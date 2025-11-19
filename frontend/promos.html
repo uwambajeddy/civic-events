@@ -16,96 +16,74 @@
     <!-- Header will be injected here by GlobalNav -->
     
     <!-- Main Content -->
-    <main class="flex-1">
+    <main class="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <!-- Hero -->
-        <section class="bg-gradient-to-r from-emerald-600 via-emerald-500 to-green-500 text-white">
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-                    <div class="space-y-4 max-w-3xl">
-                        <p class="inline-flex items-center bg-white/10 px-3 py-1 rounded-full text-sm font-semibold tracking-wide">
-                            <span class="flex h-2 w-2 rounded-full bg-white mr-2 animate-pulse"></span>
-                            Fresh community stories
-                        </p>
-                        <h1 class="text-4xl lg:text-5xl font-black leading-tight drop-shadow">Video Promos</h1>
-                        <p class="text-lg text-white/90 max-w-2xl">Watch quick highlights of programs, services, and initiatives and share them with your neighbors.</p>
-                        <div class="flex flex-wrap gap-3" id="hero-actions">
-                            <a href="#promos-grid" class="btn-primary">Browse promos</a>
-                            <button id="refresh-promos" class="btn-secondary" type="button">Refresh list</button>
-                        </div>
+        <section class="event-collection-hero">
+            <div class="space-y-3">
+                <p class="hero-kicker">CivicEvents+ promos</p>
+                <h1 class="hero-title">Community Promos</h1>
+                <p class="hero-subtitle">Watch quick highlights of programs, services, and initiatives and share them with your neighbors.</p>
+                <div class="hero-stats-grid">
+                    <div class="hero-stat">
+                        <p id="promo-total" class="hero-stat-value">--</p>
+                        <p class="hero-stat-label">Total promos</p>
                     </div>
-                    <div class="w-full lg:w-auto">
-                        <div class="glass-card text-gray-900">
-                            <div class="flex items-center justify-between mb-4">
-                                <div>
-                                    <p class="text-sm text-gray-500">Total promos</p>
-                                    <p id="promo-total" class="text-3xl font-bold text-gray-900">--</p>
-                                </div>
-                                <div class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm font-semibold">
-                                    Video hub
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3 text-sm">
-                                <div class="stat-tile">
-                                    <p class="text-gray-500">Published</p>
-                                    <p id="promo-published" class="text-xl font-semibold text-gray-900">--</p>
-                                </div>
-                                <div class="stat-tile">
-                                    <p class="text-gray-500">Drafts</p>
-                                    <p id="promo-drafts" class="text-xl font-semibold text-gray-900">--</p>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="hero-stat">
+                        <p id="promo-published" class="hero-stat-value">--</p>
+                        <p class="hero-stat-label">Published</p>
+                    </div>
+                    <div class="hero-stat">
+                        <p id="promo-drafts" class="hero-stat-value">--</p>
+                        <p class="hero-stat-label">Drafts</p>
                     </div>
                 </div>
+            </div>
+            <div class="hero-actions">
+                <p class="hero-actions-title">Quick filters</p>
+                <div class="quick-filter-group" role="group" aria-label="Quick promo filters">
+                    <button type="button" class="quick-filter-btn active" data-filter="all">All promos</button>
+                    <button type="button" class="quick-filter-btn" data-filter="published">Published</button>
+                    <button type="button" class="quick-filter-btn" data-filter="draft">Drafts</button>
+                </div>
+                <button id="refresh-promos" class="btn-modern-outline" type="button">Refresh list</button>
+                <div id="admin-actions" class="mt-4"></div>
             </div>
         </section>
 
         <!-- Controls + Grid -->
-        <section id="promos-grid" class="container mx-auto px-4 sm:px-6 lg:px-8 -mt-10 lg:-mt-14 relative z-10 pb-12">
-            <div class="bg-white rounded-2xl shadow-xl p-6 lg:p-8">
-                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-                    <div class="space-y-1">
-                        <p class="text-sm font-semibold text-emerald-700">Promo Library</p>
-                        <p class="text-gray-600">Preview and share short-form updates. Use filters to focus on what matters.</p>
+        <section id="promos-grid" class="space-y-6">
+            <div class="event-filters-panel">
+                <div class="grid md:grid-cols-4 gap-4 items-end">
+                    <div class="md:col-span-2">
+                        <label for="search-promos" class="filter-label">Search promos</label>
+                        <input
+                            type="text"
+                            id="search-promos"
+                            placeholder="Search promos by title or description..."
+                            class="filter-input"
+                        >
                     </div>
-                    <div id="admin-actions" class="flex-shrink-0"></div>
-                </div>
-
-                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-                    <div class="w-full lg:w-1/2 flex items-center gap-3">
-                        <div class="relative flex-1">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1016.65 16.65z"></path>
-                                </svg>
-                            </span>
-                            <input
-                                type="text"
-                                id="search-promos"
-                                placeholder="Search promos by title or description..."
-                                class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                            >
-                        </div>
-                        <div class="hidden lg:block h-10 w-px bg-gray-200"></div>
-                        <div class="flex items-center gap-2">
-                            <button class="filter-chip active" data-filter="all">All</button>
-                            <button class="filter-chip" data-filter="published">Published</button>
-                            <button class="filter-chip" data-filter="draft">Drafts</button>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 w-full lg:w-auto">
-                        <label class="text-sm text-gray-600" for="promo-sort">Sort</label>
-                        <select id="promo-sort" class="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                    <div>
+                        <label for="promo-sort" class="filter-label">Sort</label>
+                        <select id="promo-sort" class="filter-input">
                             <option value="newest">Newest first</option>
                             <option value="oldest">Oldest first</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="filter-label">Status</label>
+                        <div class="quick-filter-group">
+                            <button type="button" class="quick-filter-btn active" data-filter="all">All</button>
+                            <button type="button" class="quick-filter-btn" data-filter="published">Live</button>
+                            <button type="button" class="quick-filter-btn" data-filter="draft">Drafts</button>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                <!-- Promos Grid -->
-                <div id="promos-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" aria-live="polite">
-                    <!-- Promos will be loaded here -->
-                </div>
+            <!-- Promos Grid -->
+            <div id="promos-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" aria-live="polite">
+                <!-- Promos will be loaded here -->
             </div>
         </section>
     </main>
@@ -155,10 +133,11 @@
             });
 
             // Filter chips
-            $('.filter-chip').on('click', function() {
-                $('.filter-chip').removeClass('active');
-                $(this).addClass('active');
-                currentPromoFilter = $(this).data('filter');
+            $('.quick-filter-btn').on('click', function() {
+                const value = $(this).data('filter');
+                currentPromoFilter = value;
+                $('.quick-filter-btn').removeClass('active');
+                $(`.quick-filter-btn[data-filter="${value}"]`).addClass('active');
                 applyPromoFilters();
             });
 
@@ -255,7 +234,7 @@
                             <div class="promo-actions">
                                 <a
                                     href="promo-detail.html?id=${promo.id}"
-                                    class="btn-primary flex-1 text-center"
+                                    class="btn-modern-primary flex-1 text-center"
                                 >
                                     Watch promo
                                 </a>
@@ -326,7 +305,7 @@
 
         function renderPromoCtas() {
             const createButton = `
-                <a href="promo-create.html" class="btn-primary inline-flex items-center">
+                <a href="promo-create.html" class="btn-modern-primary inline-flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
@@ -337,7 +316,7 @@
             $('#admin-actions').html(createButton);
 
             if (!$('#hero-actions .create-promo').length) {
-                $('#hero-actions').append(createButton.replace('btn-primary', 'btn-secondary create-promo'));
+                $('#hero-actions').append(createButton.replace('btn-modern-primary', 'btn-modern-outline create-promo'));
             }
         }
         
