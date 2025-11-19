@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Login to CivicEvents+">
+    <title>Login | CivicEvents+</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full">
+            <!-- Logo and Title -->
+            <div class="text-center mb-8">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <svg class="w-10 h-10 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM8 11a1 1 0 112 0v3a1 1 0 11-2 0v-3zm1-6a1 1 0 100 2 1 1 0 000-2z"/>
+                    </svg>
+                    <h1 class="text-3xl font-bold text-gray-900">CivicEvents+</h1>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900">Welcome back</h2>
+                <p class="mt-2 text-gray-600">Sign in to your account</p>
+            </div>
+
+            <!-- Login Form -->
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <form id="loginForm" class="space-y-6">
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                            Email Address *
+                        </label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="john@example.com"
+                            aria-required="true"
+                            autocomplete="email"
+                        >
+                        <p class="text-red-500 text-sm mt-1 hidden" id="email_error"></p>
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Password *
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
+                                placeholder="••••••••"
+                                aria-required="true"
+                                autocomplete="current-password"
+                            >
+                            <button 
+                                type="button" 
+                                id="togglePassword"
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                aria-label="Toggle password visibility"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="text-red-500 text-sm mt-1 hidden" id="password_error"></p>
+                    </div>
+
+                    <!-- Remember Me -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input 
+                                type="checkbox" 
+                                id="remember_me" 
+                                name="remember_me"
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            >
+                            <label for="remember_me" class="ml-2 block text-sm text-gray-700">
+                                Remember me
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div>
+                        <button 
+                            type="submit" 
+                            id="submitBtn"
+                            class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Sign In
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Signup Link -->
+                <div class="mt-6 text-center">
+                    <p class="text-gray-600">
+                        Don't have an account? 
+                        <a href="signup.html" class="text-blue-600 font-semibold hover:text-blue-700">
+                            Sign up
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Back to Home -->
+            <div class="mt-6 text-center">
+                <a href="index.html" class="text-gray-600 hover:text-gray-800 text-sm">
+                    ← Back to home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    
+    <!-- Services -->
+    <script src="js/services/auth.service.js"></script>
+    
+    <!-- Utilities -->
+    <script src="js/utils/ui-helpers.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        $(document).ready(function() {
+            // Password visibility toggle
+            $('#togglePassword').on('click', function() {
+                const passwordField = $('#password');
+                const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+                passwordField.attr('type', type);
+            });
+            
+            // Form submission
+            $('#loginForm').on('submit', async function(e) {
+                e.preventDefault();
+                
+                // Clear previous errors
+                $('.text-red-500').addClass('hidden');
+                
+                // Get form data
+                const email = $('#email').val().trim();
+                const password = $('#password').val();
+                const remember_me = $('#remember_me').is(':checked');
+                
+                // Validate inputs
+                let isValid = true;
+                
+                if (!email) {
+                    $('#email_error').text('Email is required').removeClass('hidden');
+                    isValid = false;
+                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    $('#email_error').text('Please enter a valid email address').removeClass('hidden');
+                    isValid = false;
+                }
+                
+                if (!password) {
+                    $('#password_error').text('Password is required').removeClass('hidden');
+                    isValid = false;
+                }
+                
+                if (!isValid) return;
+                
+                // Disable submit button
+                const submitBtn = $('#submitBtn');
+                submitBtn.prop('disabled', true).html(`
+                    <svg class="animate-spin h-5 w-5 inline-block" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Signing in...
+                `);
+                
+                try {
+                    // Call login API
+                    await AuthService.login({ email, password }, remember_me);
+                    
+                    // Show success message
+                    UIHelpers.showToast('Login successful! Redirecting...', 'success');
+                    
+                    // Redirect to events page after 1 second
+                    setTimeout(() => {
+                        window.location.href = 'events.html';
+                    }, 1000);
+                    
+                } catch (error) {
+                    // Show error message
+                    UIHelpers.showToast(error.message || 'Login failed. Please try again.', 'error');
+                    
+                    // Re-enable submit button
+                    submitBtn.prop('disabled', false).text('Sign In');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

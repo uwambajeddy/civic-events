@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Event Details">
+    <title>Event Details | CivicEvents+</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <!-- Header will be injected here by GlobalNav -->
+    
+    <!-- Main Content -->
+    <main class="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Loading State -->
+        <div id="loading-container">
+            <div class="animate-pulse">
+                <div class="h-8 bg-gray-300 rounded w-1/3 mb-4"></div>
+                <div class="h-64 bg-gray-300 rounded mb-4"></div>
+                <div class="h-4 bg-gray-300 rounded w-full mb-2"></div>
+                <div class="h-4 bg-gray-300 rounded w-5/6"></div>
+            </div>
+        </div>
+        
+        <!-- Event Details -->
+        <div id="event-detail" class="hidden">
+            <!-- Back Button -->
+            <a href="events.html" class="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Events
+            </a>
+            
+            <!-- Event Header -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+                <div id="event-image-container" class="h-96 bg-gray-200"></div>
+                <div class="p-8">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h1 id="event-title" class="text-4xl font-bold text-gray-900 mb-2"></h1>
+                            <div class="flex items-center space-x-4 text-gray-600 mb-4">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <span id="event-date"></span>
+                                </div>
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    <span id="event-location"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="admin-actions" class="hidden space-x-2">
+                            <a id="edit-btn" href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">Edit</a>
+                            <button id="delete-btn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">Delete</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="prose max-w-none mb-6">
+                        <h2 class="text-2xl font-semibold mb-3">About This Event</h2>
+                        <p id="event-description" class="text-gray-700 whitespace-pre-wrap"></p>
+                    </div>
+                    
+                    <!-- Registration Button -->
+                    <div id="registration-container" class="mb-6">
+                        <!-- Registration button will be rendered here -->
+                    </div>
+                    
+                    <!-- Attendees (Admin only) -->
+                    <div id="attendees-section" class="hidden">
+                        <h2 class="text-2xl font-semibold mb-4">Attendees</h2>
+                        <div id="attendees-list" class="bg-gray-50 rounded-lg p-4">
+                            <!-- Attendees will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feedback Section -->
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h2 class="text-2xl font-semibold mb-6">Event Feedback</h2>
+                
+                <!-- Average Rating -->
+                <div id="average-rating" class="mb-6"></div>
+                
+                <!-- Submit Feedback Form -->
+                <div id="feedback-form" class="mb-8 border-t pt-6">
+                    <h3 class="text-lg font-semibold mb-4">Share Your Experience</h3>
+                    <form id="submitFeedbackForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Rating *</label>
+                            <div class="rating-stars">
+                                <span class="rating-star" data-rating="1">★</span>
+                                <span class="rating-star" data-rating="2">★</span>
+                                <span class="rating-star" data-rating="3">★</span>
+                                <span class="rating-star" data-rating="4">★</span>
+                                <span class="rating-star" data-rating="5">★</span>
+                            </div>
+                            <input type="hidden" id="rating" name="rating" required>
+                            <p class="text-red-500 text-sm mt-1 hidden" id="rating_error"></p>
+                        </div>
+                        <div>
+                            <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Comment</label>
+                            <textarea 
+                                id="comment" 
+                                name="comment" 
+                                rows="4"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Share your thoughts about this event..."
+                            ></textarea>
+                        </div>
+                        <button 
+                            type="submit" 
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+                        >
+                            Submit Feedback
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Feedback List -->
+                <div id="feedback-list">
+                    <!-- Feedback items will be loaded here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Error State -->
+        <div id="error-container" class="hidden text-center py-12">
+            <p class="text-red-600 text-lg mb-4">Failed to load event details</p>
+            <a href="events.html" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                Back to Events
+            </a>
+        </div>
+    </main>
+    
+    <!-- Footer will be injected here by GlobalNav -->
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    
+    <!-- Services -->
+    <script src="js/services/auth.service.js"></script>
+    <script src="js/services/api.service.js"></script>
+    
+    <!-- Utilities -->
+    <script src="js/utils/ui-helpers.js"></script>
+    <script src="js/utils/route-guard.js"></script>
+    
+    <!-- Components -->
+    <script src="js/components/global-nav.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        let eventData = null;
+        let isRegistered = false;
+        let userFeedback = null;
+        
+        $(document).ready(async function() {
+            // Get event ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('id');
+            
+            if (!eventId) {
+                window.location.href = 'events.html';
+                return;
+            }
+            
+            // Load event details
+            await loadEventDetail(eventId);
+            
+            // Load feedback
+            await loadFeedback(eventId);
+            
+            // Check if user is registered
+            await checkRegistrationStatus(eventId);
+            
+            // Load attendees if admin
+            if (AuthService.isAdmin()) {
+                await loadAttendees(eventId);
+            }
+            
+            // Rating stars interaction
+            $('.rating-star').on('click', function() {
+                const rating = $(this).data('rating');
+                $('#rating').val(rating);
+                $('.rating-star').removeClass('active');
+                $(this).addClass('active').prevAll('.rating-star').addClass('active');
+            });
+            
+            $('.rating-star').hover(
+                function() {
+                    $(this).addClass('active').prevAll('.rating-star').addClass('active');
+                    $(this).nextAll('.rating-star').removeClass('active');
+                },
+                function() {
+                    const currentRating = $('#rating').val();
+                    $('.rating-star').removeClass('active');
+                    if (currentRating) {
+                        $(`.rating-star[data-rating="${currentRating}"]`).addClass('active').prevAll('.rating-star').addClass('active');
+                    }
+                }
+            );
+            
+            // Submit feedback form
+            $('#submitFeedbackForm').on('submit', async function(e) {
+                e.preventDefault();
+                await submitFeedback(eventId);
+            });
+        });
+        
+        async function loadEventDetail(eventId) {
+            try {
+                const response = await ApiService.get(`/events/${eventId}`);
+                eventData = response.data;
+                
+                renderEventDetail(eventData);
+                
+                $('#loading-container').hide();
+                $('#event-detail').removeClass('hidden');
+                
+            } catch (error) {
+                console.error('Error loading event:', error);
+                $('#loading-container').hide();
+                $('#error-container').removeClass('hidden');
+            }
+        }
+        
+        function renderEventDetail(event) {
+            // Set title
+            $('#event-title').text(event.title);
+            document.title = `${event.title} | CivicEvents+`;
+            
+            // Set dates
+            $('#event-date').text(`${UIHelpers.formatDateTime(event.starts_at)} - ${UIHelpers.formatDateTime(event.ends_at)}`);
+            
+            // Set location
+            $('#event-location').text(event.location || 'Location TBA');
+            
+            // Set description
+            $('#event-description').text(event.description || 'No description available');
+            
+            // Set image
+            const metadata = event.metadata || {};
+            if (metadata.image_url) {
+                const imageUrl = metadata.image_url.startsWith('http') ? metadata.image_url : `${CONFIG.UPLOADS_BASE_URL}/events/${metadata.image_url}`;
+                $('#event-image-container').html(`
+                    <img 
+                        src="${imageUrl}" 
+                        alt="${UIHelpers.escapeHtml(event.title)}"
+                        class="w-full h-full object-cover"
+                        onerror="this.src='https://via.placeholder.com/1200x400?text=Event+Image'"
+                    >
+                `);
+            } else {
+                $('#event-image-container').html(`
+                    <div class="w-full h-full flex items-center justify-center bg-gray-300">
+                        <p class="text-gray-600 text-xl">No Image Available</p>
+                    </div>
+                `);
+            }
+            
+            // Admin actions
+            if (AuthService.isAdmin()) {
+                $('#admin-actions').removeClass('hidden');
+                $('#edit-btn').attr('href', `event-edit.html?id=${event.id}`);
+                $('#delete-btn').on('click', () => deleteEvent(event.id));
+                $('#attendees-section').removeClass('hidden');
+            }
+        }
+        
+        async function checkRegistrationStatus(eventId) {
+            try {
+                const response = await ApiService.get('/event-registrations/my-registrations');
+                const registrations = response.data || [];
+                
+                isRegistered = registrations.some(reg => reg.event_id === eventId);
+                
+                renderRegistrationButton();
+                
+            } catch (error) {
+                console.error('Error checking registration:', error);
+                renderRegistrationButton();
+            }
+        }
+        
+        function renderRegistrationButton() {
+            const isPast = new Date(eventData.ends_at) < new Date();
+            
+            let buttonHTML = '';
+            
+            if (isPast) {
+                buttonHTML = '<p class="text-gray-600">This event has ended</p>';
+            } else if (isRegistered) {
+                buttonHTML = `
+                    <button 
+                        onclick="cancelRegistration()" 
+                        class="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition"
+                    >
+                        Cancel Registration
+                    </button>
+                `;
+            } else {
+                buttonHTML = `
+                    <button 
+                        onclick="registerForEvent()" 
+                        class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+                    >
+                        Register for Event
+                    </button>
+                `;
+            }
+            
+            $('#registration-container').html(buttonHTML);
+        }
+        
+        async function registerForEvent() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const eventId = urlParams.get('id');
+                
+                await ApiService.post('/event-registrations/register', {
+                    event_id: parseInt(eventId)
+                });
+                
+                UIHelpers.showToast('Registered successfully!', 'success');
+                isRegistered = true;
+                renderRegistrationButton();
+                
+                // Reload attendees if admin
+                if (AuthService.isAdmin()) {
+                    await loadAttendees(eventId);
+                }
+                
+            } catch (error) {
+                UIHelpers.showToast(error.message || 'Registration failed', 'error');
+            }
+        }
+        
+        async function cancelRegistration() {
+            const confirmed = await UIHelpers.confirmDialog('Are you sure you want to cancel your registration?');
+            if (!confirmed) return;
+            
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const eventId = urlParams.get('id');
+                
+                await ApiService.post('/event-registrations/cancel', {
+                    event_id: parseInt(eventId)
+                });
+                
+                UIHelpers.showToast('Registration cancelled', 'success');
+                isRegistered = false;
+                renderRegistrationButton();
+                
+                // Reload attendees if admin
+                if (AuthService.isAdmin()) {
+                    await loadAttendees(eventId);
+                }
+                
+            } catch (error) {
+                UIHelpers.showToast(error.message || 'Cancellation failed', 'error');
+            }
+        }
+        
+        async function loadFeedback(eventId) {
+            try {
+                // Check if user has already submitted feedback
+                const userFeedbackResponse = await ApiService.get('/event-feedback/my-feedback');
+                const allUserFeedback = userFeedbackResponse.data || [];
+                userFeedback = allUserFeedback.find(f => f.event_id === eventId);
+                
+                if (userFeedback) {
+                    $('#feedback-form').html('<p class="text-gray-600">You have already submitted feedback for this event.</p>');
+                }
+                
+                // Load all feedback (admin can see all, users see published)
+                let feedbackData = [];
+                if (AuthService.isAdmin()) {
+                    const response = await ApiService.get(`/event-feedback/event/${eventId}`);
+                    feedbackData = response.data || [];
+                } else {
+                    // For regular users, we'll need to implement a public endpoint or filter client-side
+                    // For now, just show user's own feedback
+                    feedbackData = userFeedback ? [userFeedback] : [];
+                }
+                
+                renderFeedback(feedbackData);
+                
+            } catch (error) {
+                console.error('Error loading feedback:', error);
+            }
+        }
+        
+        function renderFeedback(feedbackList) {
+            if (!feedbackList || feedbackList.length === 0) {
+                $('#feedback-list').html('<p class="text-gray-600">No feedback yet. Be the first to share your thoughts!</p>');
+                return;
+            }
+            
+            // Calculate average rating
+            const avgRating = feedbackList.reduce((sum, f) => sum + f.rating, 0) / feedbackList.length;
+            $('#average-rating').html(`
+                <div class="flex items-center space-x-2">
+                    <span class="text-3xl font-bold text-gray-900">${avgRating.toFixed(1)}</span>
+                    <div class="rating-stars">
+                        ${Array(5).fill(0).map((_, i) => 
+                            `<span class="rating-star ${i < Math.round(avgRating) ? 'active' : ''}">★</span>`
+                        ).join('')}
+                    </div>
+                    <span class="text-gray-600">(${feedbackList.length} ${feedbackList.length === 1 ? 'review' : 'reviews'})</span>
+                </div>
+            `);
+            
+            // Render feedback items
+            let html = '';
+            feedbackList.forEach(feedback => {
+                html += `
+                    <div class="border-t border-gray-200 py-4">
+                        <div class="flex items-start justify-between mb-2">
+                            <div>
+                                <p class="font-semibold text-gray-900">${UIHelpers.escapeHtml(feedback.user_name || 'Anonymous')}</p>
+                                <div class="rating-stars text-sm">
+                                    ${Array(5).fill(0).map((_, i) => 
+                                        `<span class="rating-star ${i < feedback.rating ? 'active' : ''}">★</span>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                            <span class="text-sm text-gray-500">${UIHelpers.formatRelativeTime(feedback.created_at)}</span>
+                        </div>
+                        ${feedback.comment ? `<p class="text-gray-700">${UIHelpers.escapeHtml(feedback.comment)}</p>` : ''}
+                    </div>
+                `;
+            });
+            
+            $('#feedback-list').html(html);
+        }
+        
+        async function submitFeedback(eventId) {
+            const rating = parseInt($('#rating').val());
+            const comment = $('#comment').val().trim();
+            
+            if (!rating) {
+                $('#rating_error').text('Please select a rating').removeClass('hidden');
+                return;
+            }
+            
+            try {
+                await ApiService.post('/event-feedback', {
+                    event_id: parseInt(eventId),
+                    rating: rating,
+                    comment: comment || null
+                });
+                
+                UIHelpers.showToast('Feedback submitted!', 'success');
+                await loadFeedback(eventId);
+                
+                // Reset form
+                $('#submitFeedbackForm')[0].reset();
+                $('#rating').val('');
+                $('.rating-star').removeClass('active');
+                
+            } catch (error) {
+                UIHelpers.showToast(error.message || 'Failed to submit feedback', 'error');
+            }
+        }
+        
+        async function loadAttendees(eventId) {
+            try {
+                const response = await ApiService.get(`/event-registrations/event/${eventId}/attendees`);
+                const attendees = response.data || [];
+                
+                if (attendees.length === 0) {
+                    $('#attendees-list').html('<p class="text-gray-600">No attendees yet</p>');
+                    return;
+                }
+                
+                let html = `<p class="font-semibold mb-3">${attendees.length} ${attendees.length === 1 ? 'Attendee' : 'Attendees'}</p><ul class="space-y-2">`;
+                attendees.forEach(attendee => {
+                    html += `
+                        <li class="flex items-center space-x-3 p-2 bg-white rounded">
+                            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                ${attendee.user_name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <p class="font-medium">${UIHelpers.escapeHtml(attendee.user_name)}</p>
+                                <p class="text-sm text-gray-500">Registered ${UIHelpers.formatRelativeTime(attendee.registered_at)}</p>
+                            </div>
+                        </li>
+                    `;
+                });
+                html += '</ul>';
+                
+                $('#attendees-list').html(html);
+                
+            } catch (error) {
+                console.error('Error loading attendees:', error);
+            }
+        }
+        
+        async function deleteEvent(eventId) {
+            const confirmed = await UIHelpers.confirmDialog('Are you sure you want to delete this event? This action cannot be undone.');
+            if (!confirmed) return;
+            
+            try {
+                await ApiService.delete(`/events/${eventId}`);
+                UIHelpers.showToast('Event deleted successfully', 'success');
+                window.location.href = 'events.html';
+            } catch (error) {
+                UIHelpers.showToast(error.message || 'Failed to delete event', 'error');
+            }
+        }
+        
+        // Make functions available globally
+        window.registerForEvent = registerForEvent;
+        window.cancelRegistration = cancelRegistration;
+    </script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Browse video promos">
+    <title>Promos | CivicEvents+</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <!-- Header will be injected here by GlobalNav -->
+    
+    <!-- Main Content -->
+    <main class="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Video Promos</h1>
+                <p class="text-gray-600 mt-2">Watch community programs and initiatives</p>
+            </div>
+            <div id="admin-actions">
+                <!-- Admin create button will be rendered here if user is admin -->
+            </div>
+        </div>
+        
+        <!-- Search -->
+        <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+            <input 
+                type="text" 
+                id="search-promos" 
+                placeholder="Search promos..." 
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+        </div>
+        
+        <!-- Promos Grid -->
+        <div id="promos-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Promos will be loaded here -->
+        </div>
+    </main>
+    
+    <!-- Footer will be injected here by GlobalNav -->
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    
+    <!-- Services -->
+    <script src="js/services/auth.service.js"></script>
+    <script src="js/services/api.service.js"></script>
+    
+    <!-- Utilities -->
+    <script src="js/utils/ui-helpers.js"></script>
+    <script src="js/utils/route-guard.js"></script>
+    
+    <!-- Components -->
+    <script src="js/components/global-nav.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        let allPromos = [];
+        let filteredPromos = [];
+        
+        $(document).ready(async function() {
+            // Check if admin and show create button
+            if (AuthService.isAdmin()) {
+                $('#admin-actions').html(`
+                    <a href="promo-create.html" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Create Promo
+                    </a>
+                `);
+            }
+            
+            // Load promos
+            await loadPromos();
+            
+            // Search handler
+            let searchTimeout;
+            $('#search-promos').on('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    filterPromos();
+                }, 300);
+            });
+        });
+        
+        async function loadPromos() {
+            UIHelpers.showSkeletonCards('#promos-container', 6);
+            
+            try {
+                const response = await ApiService.get('/promos');
+                
+                if (!response || !response.data) {
+                    throw new Error('Failed to load promos');
+                }
+                
+                allPromos = response.data;
+                filteredPromos = allPromos;
+                renderPromos();
+                
+            } catch (error) {
+                console.error('Error loading promos:', error);
+                $('#promos-container').html(`
+                    <div class="col-span-full text-center py-12">
+                        <p class="text-red-600 mb-4">Failed to load promos</p>
+                        <button onclick="loadPromos()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            Retry
+                        </button>
+                    </div>
+                `);
+            }
+        }
+        
+        function renderPromos() {
+            const container = $('#promos-container');
+            
+            if (filteredPromos.length === 0) {
+                UIHelpers.showEmptyState('#promos-container', 'No promos found', '🎬');
+                return;
+            }
+            
+            // Filter only published for non-admin users
+            const promosToShow = AuthService.isAdmin() 
+                ? filteredPromos 
+                : filteredPromos.filter(p => p.published);
+            
+            if (promosToShow.length === 0) {
+                UIHelpers.showEmptyState('#promos-container', 'No promos available', '🎬');
+                return;
+            }
+            
+            let html = '';
+            
+            promosToShow.forEach(promo => {
+                const videoUrl = promo.video_url 
+                    ? `${CONFIG.UPLOADS_BASE_URL}/promos/${promo.video_url}`
+                    : null;
+                
+                html += `
+                    <div class="card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                        <div class="relative">
+                            ${videoUrl ? `
+                                <video class="w-full h-48 object-cover" preload="metadata">
+                                    <source src="${videoUrl}#t=0.5" type="video/mp4">
+                                </video>
+                                <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                                    <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                                    </svg>
+                                </div>
+                            ` : `
+                                <div class="w-full h-48 bg-gray-300 flex items-center justify-center">
+                                    <svg class="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                            `}
+                            ${!promo.published ? '<span class="absolute top-2 right-2 status-badge draft">Draft</span>' : ''}
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                                ${UIHelpers.escapeHtml(promo.title)}
+                            </h3>
+                            <p class="text-gray-600 mb-4">
+                                ${UIHelpers.truncateText(promo.description || '', 100)}
+                            </p>
+                            <div class="text-sm text-gray-500 mb-4">
+                                Posted ${UIHelpers.formatRelativeTime(promo.created_at)}
+                            </div>
+                            <div class="flex space-x-2">
+                                <a 
+                                    href="promo-detail.html?id=${promo.id}" 
+                                    class="flex-1 text-center px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
+                                >
+                                    Watch Video
+                                </a>
+                                ${AuthService.isAdmin() ? `
+                                    <button 
+                                        onclick="deletePromo(${promo.id})" 
+                                        class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                                        title="Delete"
+                                    >
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.html(html);
+        }
+        
+        function filterPromos() {
+            const searchTerm = $('#search-promos').val().toLowerCase();
+            
+            filteredPromos = allPromos.filter(promo => {
+                return !searchTerm || 
+                    promo.title.toLowerCase().includes(searchTerm) ||
+                    (promo.description && promo.description.toLowerCase().includes(searchTerm));
+            });
+            
+            renderPromos();
+        }
+        
+        async function deletePromo(promoId) {
+            const confirmed = await UIHelpers.confirmDialog('Are you sure you want to delete this promo? This action cannot be undone.');
+            
+            if (!confirmed) return;
+            
+            try {
+                await ApiService.delete(`/promos/${promoId}`);
+                UIHelpers.showToast('Promo deleted successfully', 'success');
+                await loadPromos();
+            } catch (error) {
+                UIHelpers.showToast(error.message || 'Failed to delete promo', 'error');
+            }
+        }
+        
+        // Make functions available globally
+        window.deletePromo = deletePromo;
+        window.loadPromos = loadPromos;
+    </script>
+</body>
+</html>

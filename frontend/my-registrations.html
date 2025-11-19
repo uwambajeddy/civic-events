@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="My Event Registrations">
+    <title>My Registrations | CivicEvents+</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <!-- Header will be injected here by GlobalNav -->
+    
+    <!-- Main Content -->
+    <main class="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">My Event Registrations</h1>
+            <p class="text-gray-600 mt-2">View and manage your event registrations</p>
+        </div>
+        
+        <!-- Filter Tabs -->
+        <div class="mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8">
+                    <button 
+                        class="tab-btn border-b-2 py-4 px-1 text-sm font-medium transition-colors active"
+                        data-filter="upcoming"
+                    >
+                        Upcoming Events
+                    </button>
+                    <button 
+                        class="tab-btn border-b-2 py-4 px-1 text-sm font-medium transition-colors"
+                        data-filter="past"
+                    >
+                        Past Events
+                    </button>
+                    <button 
+                        class="tab-btn border-b-2 py-4 px-1 text-sm font-medium transition-colors"
+                        data-filter="all"
+                    >
+                        All Events
+                    </button>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Loading State -->
+        <div id="loading-container">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="animate-pulse">
+                    <div class="h-48 bg-gray-300 rounded-t-lg"></div>
+                    <div class="bg-white p-4 rounded-b-lg">
+                        <div class="h-4 bg-gray-300 rounded mb-2"></div>
+                        <div class="h-4 bg-gray-300 rounded w-2/3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Registrations Grid -->
+        <div id="registrations-container" class="hidden">
+            <div id="registrations-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Event cards will be rendered here -->
+            </div>
+            
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden text-center py-16">
+                <svg class="w-24 h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">No Registrations Found</h3>
+                <p class="text-gray-500 mb-6">You haven't registered for any events yet.</p>
+                <a href="events.html" class="inline-block px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                    Browse Events
+                </a>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer will be injected here by GlobalNav -->
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    
+    <!-- Services -->
+    <script src="js/services/auth.service.js"></script>
+    <script src="js/services/api.service.js"></script>
+    
+    <!-- Utilities -->
+    <script src="js/utils/ui-helpers.js"></script>
+    <script src="js/utils/route-guard.js"></script>
+    
+    <!-- Components -->
+    <script src="js/components/global-nav.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        let allRegistrations = [];
+        let currentFilter = 'upcoming';
+        
+        $(document).ready(async function() {
+            await loadRegistrations();
+            
+            // Tab switching
+            $('.tab-btn').on('click', function() {
+                $('.tab-btn').removeClass('active');
+                $(this).addClass('active');
+                
+                currentFilter = $(this).data('filter');
+                renderFilteredRegistrations();
+            });
+        });
+        
+        async function loadRegistrations() {
+            try {
+                const response = await ApiService.get('/event-registrations/my-registrations');
+                allRegistrations = response.data || [];
+                
+                renderFilteredRegistrations();
+                
+                $('#loading-container').hide();
+                $('#registrations-container').removeClass('hidden');
+                
+            } catch (error) {
+                console.error('Error loading registrations:', error);
+                UIHelpers.showToast('Failed to load registrations', 'error');
+                $('#loading-container').hide();
+                $('#registrations-container').removeClass('hidden');
+                $('#empty-state').removeClass('hidden');
+            }
+        }
+        
+        function renderFilteredRegistrations() {
+            const now = new Date();
+            let filtered = allRegistrations;
+            
+            if (currentFilter === 'upcoming') {
+                filtered = allRegistrations.filter(reg => new Date(reg.event.starts_at) > now);
+            } else if (currentFilter === 'past') {
+                filtered = allRegistrations.filter(reg => new Date(reg.event.ends_at) < now);
+            }
+            
+            if (filtered.length === 0) {
+                $('#registrations-grid').empty();
+                $('#empty-state').removeClass('hidden');
+            } else {
+                $('#empty-state').addClass('hidden');
+                renderRegistrations(filtered);
+            }
+        }
+        
+        function renderRegistrations(registrations) {
+            const now = new Date();
+            
+            const cardsHTML = registrations.map(registration => {
+                const event = registration.event;
+                const imageUrl = event.metadata?.image_url 
+                    ? (event.metadata.image_url.startsWith('http') ? event.metadata.image_url : `${CONFIG.UPLOADS_BASE_URL}/events/${event.metadata.image_url}`)
+                    : 'https://via.placeholder.com/400x200?text=No+Image';
+                
+                const eventDate = new Date(event.starts_at);
+                const isPast = new Date(event.ends_at) < now;
+                const isToday = eventDate.toDateString() === now.toDateString();
+                
+                return `
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                        <!-- Event Image -->
+                        <div class="relative h-48">
+                            <img 
+                                src="${imageUrl}" 
+                                alt="${UIHelpers.escapeHtml(event.title)}"
+                                class="w-full h-full object-cover"
+                                onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'"
+                            >
+                            ${isPast ? `
+                                <div class="absolute top-2 right-2 bg-gray-800 bg-opacity-75 text-white px-3 py-1 rounded-full text-sm">
+                                    Completed
+                                </div>
+                            ` : isToday ? `
+                                <div class="absolute top-2 right-2 bg-red-600 text-white px-3 py-1 rounded-full text-sm animate-pulse">
+                                    Today!
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <!-- Event Info -->
+                        <div class="p-4">
+                            <h3 class="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
+                                ${UIHelpers.escapeHtml(event.title)}
+                            </h3>
+                            
+                            <div class="space-y-2 text-sm text-gray-600 mb-4">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    ${UIHelpers.formatDateTime(event.starts_at)}
+                                </div>
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    ${UIHelpers.escapeHtml(event.location)}
+                                </div>
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Registered ${UIHelpers.formatRelativeTime(registration.registered_at)}
+                                </div>
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="flex space-x-2">
+                                <a 
+                                    href="event-detail.html?id=${event.id}"
+                                    class="flex-1 text-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                                >
+                                    View Event
+                                </a>
+                                ${!isPast ? `
+                                    <button 
+                                        onclick="cancelRegistration(${registration.id}, ${event.id})"
+                                        class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition"
+                                    >
+                                        Cancel
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            $('#registrations-grid').html(cardsHTML);
+        }
+        
+        async function cancelRegistration(registrationId, eventId) {
+            const confirmed = await UIHelpers.confirmDialog(
+                'Are you sure you want to cancel this registration?'
+            );
+            
+            if (!confirmed) return;
+            
+            try {
+                await ApiService.delete(`/event-registrations/${registrationId}`);
+                UIHelpers.showToast('Registration cancelled successfully', 'success');
+                
+                // Remove from array
+                allRegistrations = allRegistrations.filter(r => r.id !== registrationId);
+                
+                // Re-render
+                renderFilteredRegistrations();
+                
+            } catch (error) {
+                UIHelpers.showToast(error.message || 'Failed to cancel registration', 'error');
+            }
+        }
+    </script>
+    
+    <style>
+        .tab-btn {
+            border-color: transparent;
+            color: #6B7280;
+        }
+        
+        .tab-btn.active {
+            border-color: #10B981;
+            color: #10B981;
+        }
+        
+        .tab-btn:hover:not(.active) {
+            border-color: #D1D5DB;
+            color: #374151;
+        }
+        
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</body>
+</html>

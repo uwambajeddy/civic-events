@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Admin Dashboard">
+    <title>Admin Dashboard | CivicEvents+</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <!-- Header will be injected here by GlobalNav -->
+    
+    <!-- Main Content -->
+    <main class="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p class="text-gray-600 mt-2">Platform overview and user management</p>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div id="stats-container" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Loading skeleton -->
+            <div class="bg-white rounded-lg shadow-md p-6 animate-pulse">
+                <div class="h-4 bg-gray-300 rounded w-1/2 mb-4"></div>
+                <div class="h-8 bg-gray-300 rounded w-1/3"></div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 animate-pulse">
+                <div class="h-4 bg-gray-300 rounded w-1/2 mb-4"></div>
+                <div class="h-8 bg-gray-300 rounded w-1/3"></div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 animate-pulse">
+                <div class="h-4 bg-gray-300 rounded w-1/2 mb-4"></div>
+                <div class="h-8 bg-gray-300 rounded w-1/3"></div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-lg shadow-md mb-8 overflow-hidden">
+            <div class="p-6 border-b border-gray-200 flex items-center justify-between flex-wrap gap-4">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                    <svg class="w-6 h-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Quick Actions
+                </h2>
+                <div class="flex items-center gap-3 flex-wrap" id="quick-actions">
+                    <a href="event-create.html" class="action-btn bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        New Event
+                    </a>
+                    <a href="announcement-create.html" class="action-btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-2v13"/></svg>
+                        New Announcement
+                    </a>
+                    <a href="promo-create.html" class="action-btn bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M4 6h8m-8 4h8m-8 4h8m6-10v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+                        New Promo
+                    </a>
+                    <a href="events.html" class="action-btn bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        Manage Events
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts & Activity Grid -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
+            <!-- Events Trend Chart -->
+            <div class="bg-white rounded-lg shadow-md xl:col-span-2 overflow-hidden">
+                <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                        <svg class="w-6 h-6 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3v18h18M6 15l4-4 4 4 4-8"/></svg>
+                        Event Creation Trend
+                    </h2>
+                    <select id="trend-range" class="text-sm border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="6">Last 6 Months</option>
+                        <option value="12">Last 12 Months</option>
+                    </select>
+                </div>
+                <div class="p-6">
+                    <canvas id="eventsChart" height="140"></canvas>
+                    <div id="chart-empty" class="hidden text-center py-12 text-gray-500">Not enough data to show trend.</div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                        <svg class="w-6 h-6 text-amber-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l2 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Recent Activity
+                    </h2>
+                    <button id="refresh-activity" class="text-sm px-3 py-1 rounded bg-amber-100 text-amber-700 hover:bg-amber-200 transition">Refresh</button>
+                </div>
+                <div id="activity-container" class="p-6 space-y-4">
+                    <div class="animate-pulse space-y-3">
+                        <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+                        <div class="h-4 bg-gray-300 rounded w-2/3"></div>
+                        <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User Management -->
+        <div class="bg-white rounded-lg shadow-md">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-900">User Management</h2>
+            </div>
+            
+            <div class="p-6">
+                <!-- Search -->
+                <div class="mb-6">
+                    <input 
+                        type="text" 
+                        id="user-search"
+                        placeholder="Search users by name or email..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    >
+                </div>
+                
+                <!-- Users Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full" id="users-table">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Joined</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody" class="divide-y divide-gray-200">
+                            <!-- Loading state -->
+                            <tr>
+                                <td colspan="6" class="px-6 py-12 text-center">
+                                    <div class="animate-pulse">Loading users...</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div id="pagination" class="mt-6"></div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer will be injected here by GlobalNav -->
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    
+    <!-- Services -->
+    <script src="js/services/auth.service.js"></script>
+    <script src="js/services/api.service.js"></script>
+    
+    <!-- Utilities -->
+    <script src="js/utils/ui-helpers.js"></script>
+    <script src="js/utils/route-guard.js"></script>
+    
+    <!-- Components -->
+    <script src="js/components/global-nav.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        let allUsers = [];
+        let filteredUsers = [];
+        
+        $(document).ready(async function() {
+            // Admin only page
+            if (!AuthService.isAdmin()) {
+                window.location.href = 'events.html';
+                return;
+            }
+            
+            // Load data
+            await loadDashboardStats();
+            await loadUsers();
+            
+            // Setup search
+            $('#user-search').on('input', function() {
+                filterUsers($(this).val());
+            });
+        });
+        
+        async function loadDashboardStats() {
+            try {
+                const response = await ApiService.get('/dashboard/admin');
+                const stats = response.data;
+                
+                renderStats(stats);
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                UIHelpers.showToast('Failed to load dashboard statistics', 'error');
+            }
+        }
+
+        // Load events for chart & activity
+        async function loadEventsForDashboard() {
+            try {
+                const response = await ApiService.get('/events');
+                const events = response.data || [];
+                buildEventsChart(events);
+                renderActivity(events, allUsers);
+            } catch (e) {
+                console.error('Error loading events for dashboard', e);
+                $('#chart-empty').removeClass('hidden');
+            }
+        }
+        
+        function renderStats(stats) {
+            const statsHTML = `
+                <!-- Events Card -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 mb-2">Total Events</p>
+                            <p class="text-3xl font-bold text-gray-900">${stats.total_events || 0}</p>
+                        </div>
+                        <div class="bg-green-100 rounded-full p-3">
+                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Users Card -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 mb-2">Total Users</p>
+                            <p class="text-3xl font-bold text-gray-900">${stats.total_users || 0}</p>
+                        </div>
+                        <div class="bg-blue-100 rounded-full p-3">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Registrations Card -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 mb-2">Total Registrations</p>
+                            <p class="text-3xl font-bold text-gray-900">${stats.total_registrations || 0}</p>
+                        </div>
+                        <div class="bg-purple-100 rounded-full p-3">
+                            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            $('#stats-container').html(statsHTML);
+        }
+
+        // Build simple trend chart using canvas (no external lib)
+        function buildEventsChart(events) {
+            const monthsBack = parseInt($('#trend-range').val(), 10);
+            const now = new Date();
+            // Prepare buckets
+            const buckets = [];
+            for (let i = monthsBack - 1; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                buckets.push({ label: d.toLocaleString('default', { month: 'short' }), year: d.getFullYear(), month: d.getMonth(), count: 0 });
+            }
+            events.forEach(ev => {
+                const created = new Date(ev.created_at);
+                buckets.forEach(b => {
+                    if (created.getFullYear() === b.year && created.getMonth() === b.month) {
+                        b.count++;
+                    }
+                });
+            });
+            const total = buckets.reduce((a, b) => a + b.count, 0);
+            if (total === 0) {
+                $('#chart-empty').removeClass('hidden');
+                return;
+            } else {
+                $('#chart-empty').addClass('hidden');
+            }
+            const canvas = document.getElementById('eventsChart');
+            const ctx = canvas.getContext('2d');
+            // Clear
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Responsive width/height
+            const width = canvas.width = canvas.clientWidth;
+            const height = canvas.height = 140;
+            const padding = 30;
+            const max = Math.max(...buckets.map(b => b.count)) || 1;
+            const barWidth = (width - padding * 2) / buckets.length * 0.7;
+            // Axis
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, 10);
+            ctx.lineTo(padding, height - padding);
+            ctx.lineTo(width - 10, height - padding);
+            ctx.stroke();
+            // Bars
+            buckets.forEach((b, i) => {
+                const xCenter = padding + (width - padding * 2) * (i / (buckets.length - 1 || 1));
+                const barHeight = (b.count / max) * (height - padding * 2);
+                const x = xCenter - barWidth / 2;
+                const y = height - padding - barHeight;
+                const gradient = ctx.createLinearGradient(x, y, x, height - padding);
+                gradient.addColorStop(0, '#10b981');
+                gradient.addColorStop(1, '#6ee7b7');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(x, y, barWidth, barHeight);
+                // Value label
+                ctx.fillStyle = '#374151';
+                ctx.font = '11px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(b.count, xCenter, y - 6);
+                // Month label
+                ctx.fillStyle = '#6b7280';
+                ctx.fillText(b.label, xCenter, height - padding + 14);
+            });
+        }
+
+        function renderActivity(events, users) {
+            // Sort events/users by creation date desc
+            const sortedEvents = [...events].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+            const sortedUsers = [...users].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+            const html = `
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                        <svg class="w-4 h-4 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10m-7 4h4m-5 4h6"/></svg>
+                        Latest Events
+                    </h3>
+                    <ul class="space-y-2">
+                        ${sortedEvents.map(ev => `<li class="text-sm flex justify-between">
+                            <span class="font-medium text-gray-800 truncate" title="${UIHelpers.escapeHtml(ev.title)}">${UIHelpers.escapeHtml(ev.title)}</span>
+                            <span class="text-gray-500">${UIHelpers.formatRelativeTime(ev.created_at)}</span>
+                        </li>`).join('') || '<li class="text-sm text-gray-500">No events yet</li>'}
+                    </ul>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                        <svg class="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                        Latest Users
+                    </h3>
+                    <ul class="space-y-2">
+                        ${sortedUsers.map(u => `<li class="text-sm flex justify-between">
+                            <span class="font-medium text-gray-800 truncate" title="${UIHelpers.escapeHtml(u.full_name)}">${UIHelpers.escapeHtml(u.full_name)}</span>
+                            <span class="text-gray-500">${UIHelpers.formatRelativeTime(u.created_at)}</span>
+                        </li>`).join('') || '<li class="text-sm text-gray-500">No users yet</li>'}
+                    </ul>
+                </div>
+            `;
+            $('#activity-container').html(html);
+        }
+        
+        async function loadUsers() {
+            try {
+                const response = await ApiService.get('/users');
+                allUsers = response.data || [];
+                filteredUsers = allUsers;
+                
+                renderUsers(filteredUsers);
+                    // After users load, load events for activity & chart
+                    await loadEventsForDashboard();
+                
+            } catch (error) {
+                console.error('Error loading users:', error);
+                $('#users-tbody').html(`
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-red-600">
+                            Failed to load users
+                        </td>
+                    </tr>
+                `);
+            }
+        }
+        
+        function filterUsers(searchTerm) {
+            const term = searchTerm.toLowerCase().trim();
+            
+            if (!term) {
+                filteredUsers = allUsers;
+            } else {
+                filteredUsers = allUsers.filter(user => 
+                    user.full_name.toLowerCase().includes(term) ||
+                    user.email.toLowerCase().includes(term)
+                );
+            }
+            
+            renderUsers(filteredUsers);
+        }
+        
+        function renderUsers(users) {
+            if (users.length === 0) {
+                $('#users-tbody').html(`
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                            No users found
+                        </td>
+                    </tr>
+                `);
+                return;
+            }
+            
+            const usersHTML = users.map(user => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                <span class="text-green-600 font-semibold">${user.full_name.charAt(0).toUpperCase()}</span>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${UIHelpers.escapeHtml(user.full_name)}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${UIHelpers.escapeHtml(user.email)}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${
+                            user.role === 'admin' 
+                                ? 'bg-purple-100 text-purple-800' 
+                                : 'bg-gray-100 text-gray-800'
+                        }">
+                            ${user.role}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${
+                            user.is_active 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                        }">
+                            ${user.is_active ? 'Active' : 'Disabled'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${UIHelpers.formatDate(user.created_at)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        ${user.role !== 'admin' ? `
+                            <button 
+                                onclick="toggleUserStatus(${user.id}, ${user.is_active})"
+                                class="px-3 py-1 rounded ${
+                                    user.is_active 
+                                        ? 'bg-red-100 text-red-700 hover:bg-red-200' 
+                                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                } transition"
+                            >
+                                ${user.is_active ? 'Disable' : 'Enable'}
+                            </button>
+                        ` : '<span class="text-gray-400">N/A</span>'}
+                    </td>
+                </tr>
+            `).join('');
+            
+            $('#users-tbody').html(usersHTML);
+        }
+        
+        async function toggleUserStatus(userId, currentStatus) {
+            const action = currentStatus ? 'disable' : 'enable';
+            const confirmed = await UIHelpers.confirmDialog(
+                `Are you sure you want to ${action} this user?`
+            );
+            
+            if (!confirmed) return;
+            
+            try {
+                await ApiService.patch(`/users/${userId}/${action}`);
+                UIHelpers.showToast(`User ${action}d successfully`, 'success');
+                
+                // Reload users
+                await loadUsers();
+                
+            } catch (error) {
+                UIHelpers.showToast(error.message || `Failed to ${action} user`, 'error');
+            }
+        }
+
+        // Listeners
+        $(document).on('change', '#trend-range', function() {
+            loadEventsForDashboard();
+        });
+        $(document).on('click', '#refresh-activity', function() {
+            loadEventsForDashboard();
+        });
+    </script>
+</body>
+</html>

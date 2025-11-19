@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Browse community events">
+    <title>Events | CivicEvents+</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <!-- Header will be injected here by GlobalNav -->
+    
+    <!-- Main Content -->
+    <main class="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Community Events</h1>
+                <p class="text-gray-600 mt-2">Discover and register for upcoming events</p>
+            </div>
+            <div id="admin-actions">
+                <!-- Admin create button will be rendered here if user is admin -->
+            </div>
+        </div>
+        
+        <!-- Filters and Search -->
+        <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+            <div class="grid md:grid-cols-4 gap-4">
+                <div class="md:col-span-2">
+                    <input 
+                        type="text" 
+                        id="search-events" 
+                        placeholder="Search events..." 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                </div>
+                <div>
+                    <select 
+                        id="filter-location" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="">All Locations</option>
+                    </select>
+                </div>
+                <div>
+                    <select 
+                        id="filter-date" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="">All Dates</option>
+                        <option value="upcoming">Upcoming</option>
+                        <option value="past">Past</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Events Grid -->
+        <div id="events-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Events will be loaded here -->
+        </div>
+        
+        <!-- Pagination -->
+        <div id="pagination-container"></div>
+    </main>
+    
+    <!-- Footer will be injected here by GlobalNav -->
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    
+    <!-- Services -->
+    <script src="js/services/auth.service.js"></script>
+    <script src="js/services/api.service.js"></script>
+    
+    <!-- Utilities -->
+    <script src="js/utils/ui-helpers.js"></script>
+    <script src="js/utils/route-guard.js"></script>
+    
+    <!-- Components -->
+    <script src="js/components/global-nav.js"></script>
+    
+    <!-- Page Script -->
+    <script>
+        let currentPage = 1;
+        let allEvents = [];
+        let filteredEvents = [];
+        
+        $(document).ready(async function() {
+            // Check if admin and show create button
+            if (AuthService.isAdmin()) {
+                $('#admin-actions').html(`
+                    <a href="event-create.html" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Create Event
+                    </a>
+                `);
+            }
+            
+            // Load events
+            await loadEvents();
+            
+            // Load locations for filter
+            loadLocationFilter();
+            
+            // Search and filter handlers
+            let searchTimeout;
+            $('#search-events').on('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    filterEvents();
+                }, 300);
+            });
+            
+            $('#filter-location, #filter-date').on('change', function() {
+                filterEvents();
+            });
+        });
+        
+        async function loadEvents() {
+            UIHelpers.showSkeletonCards('#events-container', 6);
+            
+            try {
+                const response = await ApiService.get('/events');
+                
+                if (!response || !response.data) {
+                    throw new Error('Failed to load events');
+                }
+                
+                allEvents = response.data;
+                filteredEvents = allEvents;
+                renderEvents();
+                
+            } catch (error) {
+                console.error('Error loading events:', error);
+                $('#events-container').html(`
+                    <div class="col-span-full text-center py-12">
+                        <p class="text-red-600 mb-4">Failed to load events</p>
+                        <button onclick="loadEvents()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            Retry
+                        </button>
+                    </div>
+                `);
+            }
+        }
+        
+        function renderEvents() {
+            const container = $('#events-container');
+
+            if (filteredEvents.length === 0) {
+                UIHelpers.showEmptyState('#events-container', 'No events found', '📅');
+                return;
+            }
+
+            const eventsToShow = AuthService.isAdmin()
+                ? filteredEvents
+                : filteredEvents.filter(e => e.published);
+
+            if (eventsToShow.length === 0) {
+                UIHelpers.showEmptyState('#events-container', 'No events available', '📅');
+                return;
+            }
+
+            let html = '';
+            eventsToShow.forEach(event => {
+                const metadata = event.metadata || {};
+                const imageUrl = metadata.image_url
+                    ? (metadata.image_url.startsWith('http') ? metadata.image_url : `${CONFIG.UPLOADS_BASE_URL}/events/${metadata.image_url}`)
+                    : 'https://via.placeholder.com/400x200?text=No+Image';
+
+                const startDate = new Date(event.starts_at);
+                const isUpcoming = startDate > new Date();
+                const dateStr = UIHelpers.formatDateTime(event.starts_at);
+
+                html += `
+                    <div class="event-modern">
+                        <img src="${imageUrl}" alt="${UIHelpers.escapeHtml(event.title)}" class="event-cover" onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'" />
+                        ${!event.published ? '<span class="absolute top-3 right-3 pill">Draft</span>' : ''}
+                        ${isUpcoming ? '<span class="absolute top-3 left-3 px-3 py-1 bg-emerald-500 text-white text-xs font-semibold rounded-full shadow">Upcoming</span>' : ''}
+                        <div class="event-body">
+                            <h3 class="event-title">${UIHelpers.escapeHtml(event.title)}</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-3">${UIHelpers.truncateText(event.description || '',140)}</p>
+                            <div class="event-meta">
+                                <span class="flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>${dateStr}</span>
+                                <span class="flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>${UIHelpers.escapeHtml(event.location || 'Location TBA')}</span>
+                            </div>
+                            <div class="flex gap-2 mt-2">
+                                <a href="event-detail.html?id=${event.id}" class="flex-1 btn-modern-primary text-center text-sm">View Details</a>
+                                ${AuthService.isAdmin() ? `<a href="event-edit.html?id=${event.id}" class="btn-modern-outline text-sm">Edit</a>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.html(html);
+            if (AuthService.isAdmin() && !document.querySelector('.fab-create')) {
+                $('body').append('<a href="event-create.html" class="fab-create" aria-label="Create Event">+</a>');
+            }
+        }
+        
+        function loadLocationFilter() {
+            const locations = [...new Set(allEvents.map(e => e.location).filter(l => l))];
+            let options = '<option value="">All Locations</option>';
+            locations.forEach(loc => {
+                options += `<option value="${UIHelpers.escapeHtml(loc)}">${UIHelpers.escapeHtml(loc)}</option>`;
+            });
+            $('#filter-location').html(options);
+        }
+        
+        function filterEvents() {
+            const searchTerm = $('#search-events').val().toLowerCase();
+            const locationFilter = $('#filter-location').val();
+            const dateFilter = $('#filter-date').val();
+            
+            filteredEvents = allEvents.filter(event => {
+                // Search filter
+                const matchesSearch = !searchTerm || 
+                    event.title.toLowerCase().includes(searchTerm) ||
+                    (event.description && event.description.toLowerCase().includes(searchTerm)) ||
+                    (event.location && event.location.toLowerCase().includes(searchTerm));
+                
+                // Location filter
+                const matchesLocation = !locationFilter || event.location === locationFilter;
+                
+                // Date filter
+                let matchesDate = true;
+                if (dateFilter === 'upcoming') {
+                    matchesDate = new Date(event.starts_at) > new Date();
+                } else if (dateFilter === 'past') {
+                    matchesDate = new Date(event.starts_at) < new Date();
+                }
+                
+                return matchesSearch && matchesLocation && matchesDate;
+            });
+            
+            renderEvents();
+        }
+        
+        async function deleteEvent(eventId) {
+            const confirmed = await UIHelpers.confirmDialog('Are you sure you want to delete this event? This action cannot be undone.');
+            
+            if (!confirmed) return;
+            
+            try {
+                await ApiService.delete(`/events/${eventId}`);
+                UIHelpers.showToast('Event deleted successfully', 'success');
+                await loadEvents();
+            } catch (error) {
+                UIHelpers.showToast(error.message || 'Failed to delete event', 'error');
+            }
+        }
+        
+        // Make deleteEvent available globally
+        window.deleteEvent = deleteEvent;
+    </script>
+</body>
+</html>

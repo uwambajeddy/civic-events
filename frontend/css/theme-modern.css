@@ -1,0 +1,188 @@
+/* Modern Theme for CivicEvents+ */
+/* Design tokens inspired by soft gradients, glass panels, pastel accents */
+
+:root {
+  --ce-bg-gradient-start: #f5f7ff;
+  --ce-bg-gradient-end: #eef5ff;
+  --ce-surface: #ffffff;
+  --ce-surface-alt: #f9fafc;
+  --ce-glass-bg: rgba(255,255,255,0.6);
+  --ce-glass-border: rgba(255,255,255,0.3);
+  --ce-primary: #6366f1; /* indigo */
+  --ce-primary-accent: #4f46e5;
+  --ce-secondary: #10b981; /* emerald */
+  --ce-danger: #ef4444;
+  --ce-warning: #f59e0b;
+  --ce-info: #0ea5e9;
+  --ce-muted: #6b7280;
+  --ce-radius-sm: 6px;
+  --ce-radius: 12px;
+  --ce-radius-lg: 20px;
+  --ce-shadow-sm: 0 2px 6px -1px rgba(0,0,0,0.08);
+  --ce-shadow: 0 8px 24px -6px rgba(0,0,0,0.12);
+  --ce-gradient-primary: linear-gradient(135deg,#818cf8 0%,#6366f1 40%,#4f46e5 100%);
+  --ce-gradient-dashboard: linear-gradient(135deg,#f0f4ff 0%,#f8f3ff 50%,#f0f7ff 100%);
+  --ce-gradient-card: linear-gradient(145deg,#ffffff 0%,#f3f6ff 50%,#ffffff 100%);
+  --ce-transition: 0.25s cubic-bezier(.4,0,.2,1);
+}
+
+/* Global background */
+body {
+  background: radial-gradient(circle at 30% 20%, #ffffff, var(--ce-bg-gradient-start) 40%, var(--ce-bg-gradient-end) 100%);
+  background-attachment: fixed;
+}
+
+/* Scrollbar refinement (overrides base) */
+::-webkit-scrollbar-track { background: var(--ce-bg-gradient-start); }
+::-webkit-scrollbar-thumb { background: var(--ce-primary); }
+::-webkit-scrollbar-thumb:hover { background: var(--ce-primary-accent); }
+
+/* Glass panel (for sidebars, drawers) */
+.glass-panel {
+  background: var(--ce-glass-bg);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--ce-glass-border);
+  box-shadow: var(--ce-shadow);
+  border-radius: var(--ce-radius);
+}
+
+/* Soft elevated card */
+.soft-card {
+  background: var(--ce-gradient-card);
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: var(--ce-radius);
+  box-shadow: var(--ce-shadow-sm);
+  position: relative;
+  transition: var(--ce-transition);
+}
+.soft-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--ce-shadow);
+}
+
+/* Accent tag/pill */
+.pill {
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:4px 10px;
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.25px;
+  border-radius:9999px;
+  background:linear-gradient(135deg,#eef2ff,#e0e7ff);
+  color:#4338ca;
+}
+
+/* Gradient heading */
+.gradient-text {
+  background:linear-gradient(90deg,#4f46e5,#6366f1,#818cf8);
+  -webkit-background-clip:text;
+  color:transparent;
+}
+
+/* Button variants enhancement */
+.btn-modern-primary {
+  background:var(--ce-gradient-primary);
+  color:#fff;
+  font-weight:600;
+  padding:.75rem 1.25rem;
+  border-radius:var(--ce-radius-sm);
+  box-shadow:0 4px 14px -4px rgba(79,70,229,.5);
+  transition:var(--ce-transition);
+}
+.btn-modern-primary:hover { filter:brightness(1.08); transform:translateY(-2px); }
+.btn-modern-primary:active { transform:translateY(0); }
+
+.btn-modern-outline {
+  background:#ffffff;
+  color:var(--ce-primary);
+  font-weight:600;
+  padding:.65rem 1.1rem;
+  border-radius:var(--ce-radius-sm);
+  border:2px solid var(--ce-primary);
+  transition:var(--ce-transition);
+}
+.btn-modern-outline:hover { background:var(--ce-primary); color:#fff; }
+
+/* Dashboard grid enhancements */
+.dashboard-grid {
+  display:grid;
+  gap:1.5rem;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+}
+
+/* Metric card */
+.metric-card {
+  padding:1.1rem 1.25rem 1.25rem;
+  display:flex;
+  flex-direction:column;
+  gap:.75rem;
+}
+.metric-value {
+  font-size:2rem;
+  font-weight:700;
+  line-height:1;
+  background:linear-gradient(90deg,#10b981,#059669);
+  -webkit-background-clip:text;
+  color:transparent;
+}
+.metric-label { font-size:.85rem; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--ce-muted); }
+
+/* Progress bar */
+.progress-bar-wrapper { background:#eef2ff; border-radius:9999px; height:8px; overflow:hidden; }
+.progress-bar-fill { background:var(--ce-gradient-primary); height:100%; width:0; transition:width .6s ease; }
+
+/* Event card modern */
+.event-modern {
+  display:flex;
+  flex-direction:column;
+  border-radius:var(--ce-radius);
+  overflow:hidden;
+  background:var(--ce-gradient-card);
+  box-shadow:var(--ce-shadow-sm);
+  transition:var(--ce-transition);
+}
+.event-modern:hover { box-shadow:var(--ce-shadow); transform:translateY(-4px); }
+.event-modern .event-cover { height:160px; object-fit:cover; width:100%; }
+.event-modern .event-body { padding:1rem 1rem 1.15rem; display:flex; flex-direction:column; gap:.65rem; }
+.event-modern .event-title { font-weight:600; font-size:1.05rem; line-height:1.3; }
+.event-modern .event-meta { display:flex; flex-wrap:wrap; gap:.5rem; font-size:.75rem; color:var(--ce-muted); }
+
+/* Floating action button */
+.fab-create {
+  position:fixed; right:1.5rem; bottom:1.5rem;
+  background:var(--ce-gradient-primary);
+  width:56px; height:56px; border-radius:50%;
+  color:#fff; display:flex; align-items:center; justify-content:center;
+  font-size:1.75rem; box-shadow:0 10px 24px -6px rgba(99,102,241,.55);
+  cursor:pointer; transition:var(--ce-transition); z-index:50;
+}
+.fab-create:hover { transform:translateY(-4px); filter:brightness(1.07); }
+
+/* Dark mode (opt-in) */
+body.dark {
+  --ce-bg-gradient-start:#0f172a;
+  --ce-bg-gradient-end:#1e293b;
+  --ce-surface:#1e293b;
+  --ce-surface-alt:#334155;
+  --ce-glass-bg:rgba(30,41,59,0.55);
+  --ce-glass-border:rgba(255,255,255,0.12);
+  --ce-muted:#94a3b8;
+  background:radial-gradient(circle at 30% 20%, #1e293b, #0f172a 70%);
+  color:#e2e8f0;
+}
+body.dark .soft-card,
+body.dark .event-modern,
+body.dark .glass-panel { background:linear-gradient(160deg,#1e293b,#334155 60%,#1e293b); color:#e2e8f0; }
+body.dark .metric-value { background:linear-gradient(90deg,#6366f1,#818cf8); -webkit-background-clip:text; color:transparent; }
+body.dark .pill { background:linear-gradient(135deg,#475569,#334155); color:#e2e8f0; }
+body.dark .progress-bar-wrapper { background:#334155; }
+body.dark .dropdown-menu { background:#1e293b; border:1px solid #334155; }
+
+/* Utility helpers */
+.blur-backdrop { backdrop-filter:blur(24px); }
+.fade-in { animation:fade-in .4s ease both; }
+.scale-in { animation:scale-in .35s cubic-bezier(.4,0,.2,1) both; }
+@keyframes scale-in { from { transform:scale(.92); opacity:0;} to { transform:scale(1); opacity:1;} }
