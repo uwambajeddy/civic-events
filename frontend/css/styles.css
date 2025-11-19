@@ -474,6 +474,68 @@ body {
     border-radius: 9999px;
 }
 
+.notification-badge {
+    position: absolute;
+    top: 0.15rem;
+    right: 0.15rem;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    padding: 0 0.25rem;
+    border-radius: 9999px;
+    background: #dc2626;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(220, 38, 38, 0.25);
+}
+
+.notification-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 60;
+}
+
+.notification-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.notification-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: min(420px, 100vw);
+    background: #fff;
+    box-shadow: 8px 0 30px rgba(15, 23, 42, 0.15);
+    transform: translateX(-110%);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.notification-drawer.open {
+    transform: translateX(0);
+}
+
+.notification-drawer .notification-item {
+    border-radius: 0.9rem;
+}
+
+.notification-drawer .notification-item + .notification-item {
+    margin-top: 0.75rem;
+}
+
 .stat-card {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }

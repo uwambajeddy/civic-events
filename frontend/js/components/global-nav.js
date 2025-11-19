@@ -318,10 +318,21 @@ const GlobalNav = {
         try {
             const response = await ApiService.get('/notifications');
             if (response && response.data) {
-                const unreadCount = response.data.filter(n => !n.is_read).length;
-                if (unreadCount > 0) {
-                    $('#notification-count').text(unreadCount).removeClass('hidden');
+                const notifications = response.data;
+                const totalCount = notifications.length;
+                const unreadCount = notifications.filter(n => !n.is_read).length;
+                const displayCount = totalCount > 99 ? '99+' : totalCount;
+
+                if (totalCount > 0) {
+                    $('#notification-count').text(displayCount).removeClass('hidden');
+                } else {
+                    $('#notification-count').addClass('hidden');
                 }
+
+                const ariaLabel = unreadCount > 0
+                    ? `Notifications (${unreadCount} unread)`
+                    : `Notifications (${totalCount})`;
+                $('#notifications-btn').attr('aria-label', ariaLabel);
             }
         } catch (error) {
             console.error('Error loading notification count:', error);
