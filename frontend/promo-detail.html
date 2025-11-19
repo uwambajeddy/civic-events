@@ -16,15 +16,15 @@
     <!-- Header will be injected here by GlobalNav -->
     
     <!-- Main Content -->
-    <main class="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="flex-1">
         <!-- Loading State -->
-        <div id="loading-container">
-            <div class="animate-pulse">
-                <div class="h-8 bg-gray-300 rounded w-1/3 mb-4"></div>
-                <div class="h-96 bg-gray-300 rounded mb-4"></div>
+        <div id="loading-container" class="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div class="animate-pulse space-y-4">
+                <div class="h-8 bg-gray-300 rounded w-1/3"></div>
+                <div class="h-96 bg-gray-300 rounded"></div>
             </div>
         </div>
-        
+
         <!-- Promo Details -->
         <div id="promo-detail" class="hidden">
             <!-- Back Button -->
@@ -67,13 +67,46 @@
                         <p id="promo-description" class="text-gray-700 whitespace-pre-wrap"></p>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- Content -->
+            <section class="container mx-auto px-4 sm:px-6 lg:px-8 -mt-12 lg:-mt-16 relative z-10 pb-14">
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+                    <div id="video-container" class="bg-black"></div>
+                    <div class="p-8 space-y-6">
+                        <div class="grid lg:grid-cols-3 gap-6 items-start">
+                            <div class="lg:col-span-2 space-y-4">
+                                <h2 class="text-2xl font-semibold text-gray-900">About this promo</h2>
+                                <p id="promo-description" class="text-gray-700 leading-relaxed whitespace-pre-wrap"></p>
+                            </div>
+                            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 space-y-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="h-10 w-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">AV</div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Playback tips</p>
+                                        <p class="text-gray-800 font-semibold">Use space to play/pause</p>
+                                    </div>
+                                </div>
+                                <ul class="text-sm text-gray-600 space-y-2 list-disc list-inside">
+                                    <li>Toggle captions via the CC control when available.</li>
+                                    <li>Click "Watch promo" to open the focused experience.</li>
+                                    <li>Use the progress bar to scrub through highlights.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <a href="promos.html" class="btn-secondary">Back to promos</a>
+                            <a href="promo-create.html" class="btn-primary">Submit a new promo</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
-        
+
         <!-- Error State -->
         <div id="error-container" class="hidden text-center py-12">
             <p class="text-red-600 text-lg mb-4">Failed to load promo</p>
-            <a href="promos.html" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            <a href="promos.html" class="btn-primary">
                 Back to Promos
             </a>
         </div>
@@ -137,7 +170,7 @@
             // Set title
             $('#promo-title').text(promo.title);
             document.title = `${promo.title} | CivicEvents+`;
-            
+
             // Set date
             $('#promo-date').text(`Posted ${UIHelpers.formatDateTime(promo.created_at)}`);
             

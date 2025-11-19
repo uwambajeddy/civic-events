@@ -16,32 +16,98 @@
     <!-- Header will be injected here by GlobalNav -->
     
     <!-- Main Content -->
-    <main class="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Page Header -->
-        <div class="flex items-center justify-between mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">Video Promos</h1>
-                <p class="text-gray-600 mt-2">Watch community programs and initiatives</p>
+    <main class="flex-1">
+        <!-- Hero -->
+        <section class="bg-gradient-to-r from-emerald-600 via-emerald-500 to-green-500 text-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+                    <div class="space-y-4 max-w-3xl">
+                        <p class="inline-flex items-center bg-white/10 px-3 py-1 rounded-full text-sm font-semibold tracking-wide">
+                            <span class="flex h-2 w-2 rounded-full bg-white mr-2 animate-pulse"></span>
+                            Fresh community stories
+                        </p>
+                        <h1 class="text-4xl lg:text-5xl font-black leading-tight drop-shadow">Video Promos</h1>
+                        <p class="text-lg text-white/90 max-w-2xl">Watch quick highlights of programs, services, and initiatives and share them with your neighbors.</p>
+                        <div class="flex flex-wrap gap-3" id="hero-actions">
+                            <a href="#promos-grid" class="btn-primary">Browse promos</a>
+                            <button id="refresh-promos" class="btn-secondary" type="button">Refresh list</button>
+                        </div>
+                    </div>
+                    <div class="w-full lg:w-auto">
+                        <div class="glass-card text-gray-900">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <p class="text-sm text-gray-500">Total promos</p>
+                                    <p id="promo-total" class="text-3xl font-bold text-gray-900">--</p>
+                                </div>
+                                <div class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm font-semibold">
+                                    Video hub
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 text-sm">
+                                <div class="stat-tile">
+                                    <p class="text-gray-500">Published</p>
+                                    <p id="promo-published" class="text-xl font-semibold text-gray-900">--</p>
+                                </div>
+                                <div class="stat-tile">
+                                    <p class="text-gray-500">Drafts</p>
+                                    <p id="promo-drafts" class="text-xl font-semibold text-gray-900">--</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="admin-actions">
-                <!-- Admin create button will be rendered here if user is admin -->
+        </section>
+
+        <!-- Controls + Grid -->
+        <section id="promos-grid" class="container mx-auto px-4 sm:px-6 lg:px-8 -mt-10 lg:-mt-14 relative z-10 pb-12">
+            <div class="bg-white rounded-2xl shadow-xl p-6 lg:p-8">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+                    <div class="space-y-1">
+                        <p class="text-sm font-semibold text-emerald-700">Promo Library</p>
+                        <p class="text-gray-600">Preview and share short-form updates. Use filters to focus on what matters.</p>
+                    </div>
+                    <div id="admin-actions" class="flex-shrink-0"></div>
+                </div>
+
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+                    <div class="w-full lg:w-1/2 flex items-center gap-3">
+                        <div class="relative flex-1">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1016.65 16.65z"></path>
+                                </svg>
+                            </span>
+                            <input
+                                type="text"
+                                id="search-promos"
+                                placeholder="Search promos by title or description..."
+                                class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            >
+                        </div>
+                        <div class="hidden lg:block h-10 w-px bg-gray-200"></div>
+                        <div class="flex items-center gap-2">
+                            <button class="filter-chip active" data-filter="all">All</button>
+                            <button class="filter-chip" data-filter="published">Published</button>
+                            <button class="filter-chip" data-filter="draft">Drafts</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 w-full lg:w-auto">
+                        <label class="text-sm text-gray-600" for="promo-sort">Sort</label>
+                        <select id="promo-sort" class="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                            <option value="newest">Newest first</option>
+                            <option value="oldest">Oldest first</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Promos Grid -->
+                <div id="promos-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" aria-live="polite">
+                    <!-- Promos will be loaded here -->
+                </div>
             </div>
-        </div>
-        
-        <!-- Search -->
-        <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
-            <input 
-                type="text" 
-                id="search-promos" 
-                placeholder="Search promos..." 
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-        </div>
-        
-        <!-- Promos Grid -->
-        <div id="promos-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Promos will be loaded here -->
-        </div>
+        </section>
     </main>
     
     <!-- Footer will be injected here by GlobalNav -->
@@ -67,31 +133,43 @@
     <script>
         let allPromos = [];
         let filteredPromos = [];
-        
+        let currentPromoFilter = 'all';
+        let currentPromoSort = 'newest';
+
         $(document).ready(async function() {
             // Check if admin and show create button
             if (AuthService.isAdmin()) {
-                $('#admin-actions').html(`
-                    <a href="promo-create.html" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                        Create Promo
-                    </a>
-                `);
+                renderPromoCtas();
             }
-            
+
             // Load promos
             await loadPromos();
-            
+
             // Search handler
             let searchTimeout;
             $('#search-promos').on('input', function() {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
-                    filterPromos();
+                    applyPromoFilters();
                 }, 300);
             });
+
+            // Filter chips
+            $('.filter-chip').on('click', function() {
+                $('.filter-chip').removeClass('active');
+                $(this).addClass('active');
+                currentPromoFilter = $(this).data('filter');
+                applyPromoFilters();
+            });
+
+            // Sort selector
+            $('#promo-sort').on('change', function() {
+                currentPromoSort = $(this).val();
+                applyPromoFilters();
+            });
+
+            // Manual refresh
+            $('#refresh-promos').on('click', loadPromos);
         });
         
         async function loadPromos() {
@@ -106,8 +184,8 @@
                 
                 allPromos = response.data;
                 filteredPromos = allPromos;
-                renderPromos();
-                
+                applyPromoFilters();
+
             } catch (error) {
                 console.error('Error loading promos:', error);
                 $('#promos-container').html(`
@@ -123,72 +201,69 @@
         
         function renderPromos() {
             const container = $('#promos-container');
-            
+
             if (filteredPromos.length === 0) {
                 UIHelpers.showEmptyState('#promos-container', 'No promos found', '🎬');
                 return;
             }
-            
+
             // Filter only published for non-admin users
-            const promosToShow = AuthService.isAdmin() 
-                ? filteredPromos 
+            const promosToShow = AuthService.isAdmin()
+                ? filteredPromos
                 : filteredPromos.filter(p => p.published);
-            
+
             if (promosToShow.length === 0) {
                 UIHelpers.showEmptyState('#promos-container', 'No promos available', '🎬');
                 return;
             }
-            
+
             let html = '';
-            
+
             promosToShow.forEach(promo => {
-                const videoUrl = promo.video_url 
+                const videoUrl = promo.video_url
                     ? `${CONFIG.UPLOADS_BASE_URL}/promos/${promo.video_url}`
                     : null;
-                
+
                 html += `
-                    <div class="card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                        <div class="relative">
+                    <article class="promo-card relative">
+                        <div class="promo-media">
                             ${videoUrl ? `
-                                <video class="w-full h-48 object-cover" preload="metadata">
-                                    <source src="${videoUrl}#t=0.5" type="video/mp4">
+                                <video class="promo-video" controls playsinline preload="metadata">
+                                    <source src="${videoUrl}#t=0.2" type="video/mp4">
                                 </video>
-                                <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
-                                    <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
-                                    </svg>
+                                <div class="promo-overlay">
+                                    <div class="promo-badge">Tap to play</div>
                                 </div>
                             ` : `
-                                <div class="w-full h-48 bg-gray-300 flex items-center justify-center">
-                                    <svg class="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="promo-placeholder">
+                                    <svg class="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                     </svg>
+                                    <p class="text-sm text-gray-500 mt-2">No video yet</p>
                                 </div>
                             `}
-                            ${!promo.published ? '<span class="absolute top-2 right-2 status-badge draft">Draft</span>' : ''}
+                            ${!promo.published ? '<span class="status-badge draft">Draft</span>' : '<span class="status-badge live">Published</span>'}
                         </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">
-                                ${UIHelpers.escapeHtml(promo.title)}
-                            </h3>
-                            <p class="text-gray-600 mb-4">
-                                ${UIHelpers.truncateText(promo.description || '', 100)}
-                            </p>
-                            <div class="text-sm text-gray-500 mb-4">
-                                Posted ${UIHelpers.formatRelativeTime(promo.created_at)}
+                        <div class="promo-body">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="space-y-2">
+                                    <h3 class="promo-title">${UIHelpers.escapeHtml(promo.title)}</h3>
+                                    <p class="promo-description">${UIHelpers.truncateText(promo.description || '', 140)}</p>
+                                    <div class="promo-meta">Posted ${UIHelpers.formatRelativeTime(promo.created_at)}</div>
+                                </div>
                             </div>
-                            <div class="flex space-x-2">
-                                <a 
-                                    href="promo-detail.html?id=${promo.id}" 
-                                    class="flex-1 text-center px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
+                            <div class="promo-actions">
+                                <a
+                                    href="promo-detail.html?id=${promo.id}"
+                                    class="btn-primary flex-1 text-center"
                                 >
-                                    Watch Video
+                                    Watch promo
                                 </a>
                                 ${AuthService.isAdmin() ? `
-                                    <button 
-                                        onclick="deletePromo(${promo.id})" 
-                                        class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-                                        title="Delete"
+                                    <button
+                                        onclick="deletePromo(${promo.id})"
+                                        class="icon-button"
+                                        title="Delete promo"
                                     >
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -197,23 +272,73 @@
                                 ` : ''}
                             </div>
                         </div>
-                    </div>
+                    </article>
                 `;
             });
-            
+
             container.html(html);
         }
-        
-        function filterPromos() {
-            const searchTerm = $('#search-promos').val().toLowerCase();
-            
+
+        function applyPromoFilters() {
+            const searchTerm = $('#search-promos').val().toLowerCase().trim();
+
             filteredPromos = allPromos.filter(promo => {
-                return !searchTerm || 
+                const matchesSearch = !searchTerm ||
                     promo.title.toLowerCase().includes(searchTerm) ||
                     (promo.description && promo.description.toLowerCase().includes(searchTerm));
+
+                const matchesFilter = currentPromoFilter === 'all'
+                    ? true
+                    : currentPromoFilter === 'published'
+                        ? promo.published
+                        : !promo.published;
+
+                return matchesSearch && matchesFilter;
             });
-            
+
+            filteredPromos = sortPromos(filteredPromos);
             renderPromos();
+            updatePromoStats();
+        }
+
+        function sortPromos(promos) {
+            return promos.slice().sort((a, b) => {
+                const dateA = new Date(a.created_at);
+                const dateB = new Date(b.created_at);
+
+                if (currentPromoSort === 'oldest') {
+                    return dateA - dateB;
+                }
+
+                return dateB - dateA;
+            });
+        }
+
+        function updatePromoStats() {
+            const total = allPromos.length;
+            const published = allPromos.filter(p => p.published).length;
+            const drafts = total - published;
+
+            $('#promo-total').text(total);
+            $('#promo-published').text(published);
+            $('#promo-drafts').text(drafts);
+        }
+
+        function renderPromoCtas() {
+            const createButton = `
+                <a href="promo-create.html" class="btn-primary inline-flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Create promo
+                </a>
+            `;
+
+            $('#admin-actions').html(createButton);
+
+            if (!$('#hero-actions .create-promo').length) {
+                $('#hero-actions').append(createButton.replace('btn-primary', 'btn-secondary create-promo'));
+            }
         }
         
         async function deletePromo(promoId) {
