@@ -45,10 +45,16 @@
                 <div class="p-8">
                     <div class="flex items-start justify-between mb-4">
                         <div class="flex-1">
-                            <h1 id="promo-title" class="text-3xl font-bold text-gray-900 mb-2"></h1>
+                            <div class="flex items-center gap-3 mb-2">
+                                <h1 id="promo-title" class="text-3xl font-bold text-gray-900"></h1>
+                                <span id="promo-status-badge" class="px-3 py-1 text-sm font-semibold rounded-full"></span>
+                            </div>
                             <p id="promo-date" class="text-gray-600"></p>
                         </div>
                         <div id="admin-actions" class="hidden space-x-2">
+                            <button id="publish-btn" class="hidden px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                                Publish
+                            </button>
                             <button id="delete-btn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
                                 Delete
                             </button>
@@ -135,16 +141,27 @@
             // Set date
             $('#promo-date').text(`Posted ${UIHelpers.formatDateTime(promo.created_at)}`);
             
+            // Set status badge
+            if (promo.published) {
+                $('#promo-status-badge')
+                    .text('Published')
+                    .addClass('bg-green-100 text-green-800');
+            } else {
+                $('#promo-status-badge')
+                    .text('Draft')
+                    .addClass('bg-gray-100 text-gray-800');
+            }
+            
             // Set description
             $('#promo-description').text(promo.description || 'No description available');
             
             // Render video player with captions
             const videoUrl = promo.video_url 
-                ? `${CONFIG.UPLOADS_BASE_URL}/promos/${promo.video_url}`
+                ? (promo.video_url.startsWith('http') ? promo.video_url : `${CONFIG.UPLOADS_BASE_URL}/promos/${promo.video_url}`)
                 : null;
             
             const captionUrl = promo.caption_url
-                ? `${CONFIG.UPLOADS_BASE_URL}/promos/${promo.caption_url}`
+                ? (promo.caption_url.startsWith('http') ? promo.caption_url : `${CONFIG.UPLOADS_BASE_URL}/promos/${promo.caption_url}`)
                 : null;
             
             if (videoUrl) {
@@ -213,6 +230,12 @@
             // Admin actions
             if (AuthService.isAdmin()) {
                 $('#admin-actions').removeClass('hidden');
+                
+                // Show publish button if promo is draft
+                if (!promo.published) {
+                    $('#publish-btn').removeClass('hidden').on('click', () => publishPromo(promo.id));
+                }
+                
                 $('#delete-btn').on('click', () => deletePromo(promo.id));
             }
         }
@@ -223,6 +246,20 @@
 
 00:00:00.000 --> 00:10:00.000
 ${text}`;
+        }
+        
+        async function publishPromo(promoId) {
+            const confirmed = await UIHelpers.confirmDialog('Are you sure you want to publish this promo?');
+            if (!confirmed) return;
+            
+            try {
+                await ApiService.patch(`/promos/${promoId}/publish`);
+                UIHelpers.showToast('Promo published successfully', 'success');
+                // Reload to show updated status
+                location.reload();
+            } catch (error) {
+                UIHelpers.showToast(error.message || 'Failed to publish promo', 'error');
+            }
         }
         
         async function deletePromo(promoId) {

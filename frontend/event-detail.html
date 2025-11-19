@@ -424,7 +424,7 @@
                 const eventId = urlParams.get('id');
                 
                 await ApiService.post('/event-registrations/register', {
-                    event_id: parseInt(eventId)
+                    event_id: eventId
                 });
                 
                 UIHelpers.showToast('Registered successfully!', 'success');
@@ -450,7 +450,7 @@
                 const eventId = urlParams.get('id');
                 
                 await ApiService.post('/event-registrations/cancel', {
-                    event_id: parseInt(eventId)
+                    event_id: eventId
                 });
                 
                 UIHelpers.showToast('Registration cancelled', 'success');
@@ -551,7 +551,7 @@
             
             try {
                 await ApiService.post('/event-feedback', {
-                    event_id: parseInt(eventId),
+                    event_id: eventId,
                     rating: rating,
                     comment: comment || null
                 });

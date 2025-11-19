@@ -256,13 +256,13 @@
                     formData.append('published', published);
                     
                     // Submit
-                    await ApiService.post('/promos', formData);
+                    const response = await ApiService.post('/promos', formData);
                     
                     UIHelpers.showToast('Promo created successfully!', 'success');
                     
-                    // Redirect after delay
+                    // Redirect to detail page after delay
                     setTimeout(() => {
-                        window.location.href = 'promos.html';
+                        window.location.href = `promo-detail.html?id=${response.data.id}`;
                     }, 1500);
                     
                 } catch (error) {
