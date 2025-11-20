@@ -24,41 +24,13 @@
                 <h1 class="hero-title">Audio Announcements</h1>
                 <p class="hero-subtitle">Tune into quick-hit updates, service alerts, and stories from our community leaders.</p>
             </div>
-            <div class="hero-actions items-start" id="hero-admin-actions"></div>
         </section>
 
-        <!-- Controls + List -->
-        <section id="announcement-grid" class="space-y-6">
-            <div class="event-filters-panel">
-                <div class="grid md:grid-cols-4 gap-4 items-end">
-                    <div class="md:col-span-2">
-                        <label for="search-announcements" class="filter-label">Search announcements</label>
-                        <input
-                            type="text"
-                            id="search-announcements"
-                            placeholder="Search announcements by title..."
-                            class="filter-input"
-                        >
-                    </div>
-                    <div>
-                        <label for="announcement-sort" class="filter-label">Sort</label>
-                        <select id="announcement-sort" class="filter-input">
-                            <option value="newest">Newest first</option>
-                            <option value="oldest">Oldest first</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="filter-label">Status</label>
-                        <div class="quick-filter-group">
-                            <button type="button" class="quick-filter-btn active" data-filter="all">All</button>
-                            <button type="button" class="quick-filter-btn" data-filter="published">Live</button>
-                            <button type="button" class="quick-filter-btn" data-filter="draft">Drafts</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <!-- Admin toolbar -->
+        <div class="flex justify-end" id="announcement-toolbar"></div>
 
-            <!-- Announcements List -->
+        <!-- Announcements List -->
+        <section id="announcement-grid" class="space-y-6">
             <div id="announcements-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" aria-live="polite">
                 <!-- Announcements will be loaded here -->
             </div>
@@ -88,8 +60,6 @@
     <script>
         let allAnnouncements = [];
         let filteredAnnouncements = [];
-        let currentAnnouncementFilter = 'all';
-        let currentAnnouncementSort = 'newest';
 
         $(document).ready(async function() {
             // Check if admin and show create button
@@ -99,30 +69,6 @@
 
             // Load announcements
             await loadAnnouncements();
-
-            // Search handler
-            let searchTimeout;
-            $('#search-announcements').on('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    applyAnnouncementFilters();
-                }, 300);
-            });
-
-            // Filter chips
-            $('.quick-filter-btn').on('click', function() {
-                const value = $(this).data('filter');
-                currentAnnouncementFilter = value;
-                $('.quick-filter-btn').removeClass('active');
-                $(`.quick-filter-btn[data-filter="${value}"]`).addClass('active');
-                applyAnnouncementFilters();
-            });
-
-            // Sort selector
-            $('#announcement-sort').on('change', function() {
-                currentAnnouncementSort = $(this).val();
-                applyAnnouncementFilters();
-            });
         });
         
         async function loadAnnouncements() {
@@ -137,7 +83,7 @@
                 
                 allAnnouncements = response.data;
                 filteredAnnouncements = allAnnouncements;
-                applyAnnouncementFilters();
+                renderAnnouncements();
 
             } catch (error) {
                 console.error('Error loading announcements:', error);
@@ -161,9 +107,11 @@
             }
 
             // Filter only published for non-admin users
+            const sorted = filteredAnnouncements.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
             const announcementsToShow = AuthService.isAdmin()
-                ? filteredAnnouncements
-                : filteredAnnouncements.filter(a => a.published);
+                ? sorted
+                : sorted.filter(a => a.published);
 
             if (announcementsToShow.length === 0) {
                 UIHelpers.showEmptyState('#announcements-container', 'No announcements available', '📢');
@@ -181,24 +129,41 @@
                     : 'Unknown';
 
                 html += `
-                    <article class="promo-card relative">
-                        <div class="p-6 flex flex-col gap-4 h-full">
-                            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                <div class="space-y-2 flex-1">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <article class="promo-card relative bg-white shadow-lg ring-1 ring-gray-100">
+                        <div class="p-6 flex flex-col gap-5 h-full">
+                            <div class="flex flex-col gap-3">
+                                <div class="flex items-start gap-3">
+                                    <div class="rounded-full bg-indigo-50 text-indigo-600 p-3">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
                                         </svg>
-                                        <h3 class="promo-title">${UIHelpers.escapeHtml(announcement.title)}</h3>
                                     </div>
-                                    ${!announcement.published ? '<span class="status-badge draft">Draft</span>' : '<span class="status-badge live">Published</span>'}
-                                    <div class="flex items-center gap-4 text-sm text-gray-600">
-                                        <span>Duration: ${duration}</span>
-                                        <span>Posted ${UIHelpers.formatRelativeTime(announcement.created_at)}</span>
+                                    <div class="flex-1">
+                                        <div class="flex items-start justify-between gap-3">
+                                            <div class="space-y-2">
+                                                <h3 class="text-lg font-semibold text-gray-900">${UIHelpers.escapeHtml(announcement.title)}</h3>
+                                                <div class="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                                                    <span class="inline-flex items-center gap-1">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                        </svg>
+                                                        ${duration}
+                                                    </span>
+                                                    <span class="inline-flex items-center gap-1">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                        </svg>
+                                                        ${UIHelpers.formatRelativeTime(announcement.created_at)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            ${!announcement.published ? '<span class="status-badge draft">Draft</span>' : '<span class="status-badge live">Published</span>'}
+                                        </div>
+                                        ${announcement.description ? `<p class="mt-2 text-sm text-gray-700 line-clamp-2">${UIHelpers.escapeHtml(announcement.description)}</p>` : ''}
                                     </div>
                                 </div>
                                 ${AuthService.isAdmin() ? `
-                                    <div class="flex flex-wrap items-center gap-2 sm:justify-end">
+                                    <div class="flex flex-wrap items-center gap-2">
                                         ${announcement.published ? `
                                             <button
                                                 onclick="unpublishAnnouncement(${announcement.id})"
@@ -261,37 +226,6 @@
             container.html(html);
         }
 
-        function applyAnnouncementFilters() {
-            const searchTerm = $('#search-announcements').val().toLowerCase().trim();
-
-            filteredAnnouncements = allAnnouncements.filter(announcement => {
-                const matchesSearch = !searchTerm || announcement.title.toLowerCase().includes(searchTerm);
-                const matchesFilter = currentAnnouncementFilter === 'all'
-                    ? true
-                    : currentAnnouncementFilter === 'published'
-                        ? announcement.published
-                        : !announcement.published;
-
-                return matchesSearch && matchesFilter;
-            });
-
-            filteredAnnouncements = sortAnnouncements(filteredAnnouncements);
-            renderAnnouncements();
-        }
-
-        function sortAnnouncements(items) {
-            return items.slice().sort((a, b) => {
-                const dateA = new Date(a.created_at);
-                const dateB = new Date(b.created_at);
-
-                if (currentAnnouncementSort === 'oldest') {
-                    return dateA - dateB;
-                }
-
-                return dateB - dateA;
-            });
-        }
-
         function renderAnnouncementCtas() {
             const createButton = `
                 <a href="announcement-create.html" class="btn-modern-primary inline-flex items-center">
@@ -302,7 +236,7 @@
                 </a>
             `;
 
-            $('#hero-admin-actions').html(createButton);
+            $('#announcement-toolbar').html(createButton);
         }
         
         function formatDuration(seconds) {
@@ -311,17 +245,6 @@
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
         
-        function filterAnnouncements() {
-            const searchTerm = $('#search-announcements').val().toLowerCase();
-            
-            filteredAnnouncements = allAnnouncements.filter(announcement => {
-                return !searchTerm || 
-                    announcement.title.toLowerCase().includes(searchTerm);
-            });
-            
-            renderAnnouncements();
-        }
-
         function formatAudioUrl(audioUrl) {
             if (!audioUrl) return null;
             const trimmedUrl = audioUrl.trim();
