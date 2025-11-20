@@ -23,31 +23,8 @@
                 <p class="hero-kicker">CivicEvents+ announcements</p>
                 <h1 class="hero-title">Audio Announcements</h1>
                 <p class="hero-subtitle">Tune into quick-hit updates, service alerts, and stories from our community leaders.</p>
-                <div class="hero-stats-grid">
-                    <div class="hero-stat">
-                        <p id="announcement-total" class="hero-stat-value">--</p>
-                        <p class="hero-stat-label">Total announcements</p>
-                    </div>
-                    <div class="hero-stat">
-                        <p id="announcement-published" class="hero-stat-value">--</p>
-                        <p class="hero-stat-label">Published</p>
-                    </div>
-                    <div class="hero-stat">
-                        <p id="announcement-drafts" class="hero-stat-value">--</p>
-                        <p class="hero-stat-label">Drafts</p>
-                    </div>
-                </div>
             </div>
-            <div class="hero-actions">
-                <p class="hero-actions-title">Quick filters</p>
-                <div class="quick-filter-group" role="group" aria-label="Quick announcement filters">
-                    <button type="button" class="quick-filter-btn active" data-filter="all">All updates</button>
-                    <button type="button" class="quick-filter-btn" data-filter="published">Published</button>
-                    <button type="button" class="quick-filter-btn" data-filter="draft">Drafts</button>
-                </div>
-                <button id="refresh-announcements" class="btn-modern-outline" type="button">Refresh list</button>
-                <div id="admin-actions" class="mt-4"></div>
-            </div>
+            <div class="hero-actions items-start" id="hero-admin-actions"></div>
         </section>
 
         <!-- Controls + List -->
@@ -82,7 +59,7 @@
             </div>
 
             <!-- Announcements List -->
-            <div id="announcements-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" aria-live="polite">
+            <div id="announcements-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" aria-live="polite">
                 <!-- Announcements will be loaded here -->
             </div>
         </section>
@@ -146,9 +123,6 @@
                 currentAnnouncementSort = $(this).val();
                 applyAnnouncementFilters();
             });
-
-            // Manual refresh
-            $('#refresh-announcements').on('click', loadAnnouncements);
         });
         
         async function loadAnnouncements() {
@@ -200,9 +174,7 @@
 
             announcementsToShow.forEach(announcement => {
                 const metadata = announcement.metadata || {};
-                const audioUrl = announcement.audio_url
-                    ? `${CONFIG.UPLOADS_BASE_URL}/announcements/${announcement.audio_url}`
-                    : null;
+                const audioUrl = formatAudioUrl(announcement.audio_url);
 
                 const duration = metadata.duration_seconds
                     ? formatDuration(metadata.duration_seconds)
@@ -211,7 +183,7 @@
                 html += `
                     <article class="promo-card relative">
                         <div class="p-6 flex flex-col gap-4 h-full">
-                            <div class="flex items-start justify-between gap-3">
+                            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                 <div class="space-y-2 flex-1">
                                     <div class="flex items-center gap-2">
                                         <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -226,7 +198,7 @@
                                     </div>
                                 </div>
                                 ${AuthService.isAdmin() ? `
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex flex-wrap items-center gap-2 sm:justify-end">
                                         ${announcement.published ? `
                                             <button
                                                 onclick="unpublishAnnouncement(${announcement.id})"
@@ -260,7 +232,7 @@
                             <div class="rounded-xl bg-gray-50 border border-gray-100 p-4">
                                 ${audioUrl ? `
                                     <audio controls class="w-full" preload="metadata">
-                                        <source src="${audioUrl}" type="audio/mpeg">
+                                        <source src="${audioUrl}" ${metadata.mime_type ? `type="${metadata.mime_type}"` : ''}>
                                         Your browser does not support the audio element.
                                     </audio>
                                 ` : '<p class="text-gray-500">No audio available</p>'}
@@ -305,7 +277,6 @@
 
             filteredAnnouncements = sortAnnouncements(filteredAnnouncements);
             renderAnnouncements();
-            updateAnnouncementStats();
         }
 
         function sortAnnouncements(items) {
@@ -321,16 +292,6 @@
             });
         }
 
-        function updateAnnouncementStats() {
-            const total = allAnnouncements.length;
-            const published = allAnnouncements.filter(a => a.published).length;
-            const drafts = total - published;
-
-            $('#announcement-total').text(total);
-            $('#announcement-published').text(published);
-            $('#announcement-drafts').text(drafts);
-        }
-
         function renderAnnouncementCtas() {
             const createButton = `
                 <a href="announcement-create.html" class="btn-modern-primary inline-flex items-center">
@@ -341,11 +302,7 @@
                 </a>
             `;
 
-            $('#admin-actions').html(createButton);
-
-            if (!$('#hero-actions .create-announcement').length) {
-                $('#hero-actions').append(createButton.replace('btn-modern-primary', 'btn-modern-outline create-announcement'));
-            }
+            $('#hero-admin-actions').html(createButton);
         }
         
         function formatDuration(seconds) {
@@ -363,6 +320,16 @@
             });
             
             renderAnnouncements();
+        }
+
+        function formatAudioUrl(audioUrl) {
+            if (!audioUrl) return null;
+            const trimmedUrl = audioUrl.trim();
+            if (trimmedUrl.startsWith('http')) {
+                return trimmedUrl;
+            }
+
+            return `${CONFIG.UPLOADS_BASE_URL}/announcements/${trimmedUrl.replace(/^\//, '')}`;
         }
         
         async function publishAnnouncement(id) {
