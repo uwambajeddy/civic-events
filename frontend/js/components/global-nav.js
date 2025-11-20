@@ -336,6 +336,8 @@ const GlobalNav = {
             }
         } catch (error) {
             console.error('Error loading notification count:', error);
+            $('#notification-count').addClass('hidden');
+            $('#notifications-btn').attr('aria-label', 'Notifications (unavailable)');
         }
     },
     
