@@ -16,41 +16,68 @@
     <!-- Header will be injected here by GlobalNav -->
     
     <!-- Main Content -->
-    <main class="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Page Header -->
-        <div class="flex items-center justify-between mb-8">
+    <main class="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <!-- Hero -->
+        <section class="event-collection-hero">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Community Events</h1>
-                <p class="text-gray-600 mt-2">Discover and register for upcoming events</p>
+                <p class="hero-kicker">CivicEvents+ calendar</p>
+                <h1 class="hero-title">Community Events</h1>
+                <p class="hero-subtitle">Discover neighborhood clean-ups, town halls, learning circles, and more — all curated to help you plug in faster.</p>
+                <div class="hero-stats-grid">
+                    <div class="hero-stat">
+                        <p id="events-count" class="hero-stat-value">0</p>
+                        <p class="hero-stat-label">Total listings</p>
+                    </div>
+                    <div class="hero-stat">
+                        <p id="upcoming-count" class="hero-stat-value">0</p>
+                        <p class="hero-stat-label">Upcoming this month</p>
+                    </div>
+                    <div class="hero-stat">
+                        <p id="visible-count" class="hero-stat-value">0</p>
+                        <p class="hero-stat-label">Matching filters</p>
+                    </div>
+                </div>
             </div>
-            <div id="admin-actions">
-                <!-- Admin create button will be rendered here if user is admin -->
+            <div class="hero-actions">
+                <p class="hero-actions-title">Quick filters</p>
+                <div class="quick-filter-group" role="group" aria-label="Quick event filters">
+                    <button type="button" class="quick-filter-btn active" data-value="">All events</button>
+                    <button type="button" class="quick-filter-btn" data-value="upcoming">Upcoming week</button>
+                    <button type="button" class="quick-filter-btn" data-value="past">Recent recaps</button>
+                </div>
+                <button id="reset-filters" type="button" class="reset-filter-btn">Reset filters</button>
+                <div id="admin-actions" class="mt-4">
+                    <!-- Admin create CTA will be injected here -->
+                </div>
             </div>
-        </div>
-        
+        </section>
+
         <!-- Filters and Search -->
-        <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <div class="event-filters-panel">
             <div class="grid md:grid-cols-4 gap-4">
                 <div class="md:col-span-2">
-                    <input 
-                        type="text" 
-                        id="search-events" 
-                        placeholder="Search events..." 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    <label for="search-events" class="filter-label">Search</label>
+                    <input
+                        type="text"
+                        id="search-events"
+                        placeholder="Try &quot;cleanup&quot;, &quot;town hall&quot;, or &quot;workshop&quot;"
+                        class="filter-input"
                     >
                 </div>
                 <div>
-                    <select 
-                        id="filter-location" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    <label for="filter-location" class="filter-label">Location</label>
+                    <select
+                        id="filter-location"
+                        class="filter-input"
                     >
                         <option value="">All Locations</option>
                     </select>
                 </div>
                 <div>
-                    <select 
-                        id="filter-date" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    <label for="filter-date" class="filter-label">Date</label>
+                    <select
+                        id="filter-date"
+                        class="filter-input"
                     >
                         <option value="">All Dates</option>
                         <option value="upcoming">Upcoming</option>
@@ -59,7 +86,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Events Grid -->
         <div id="events-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <!-- Events will be loaded here -->
@@ -112,7 +139,7 @@
             
             // Load locations for filter
             loadLocationFilter();
-            
+
             // Search and filter handlers
             let searchTimeout;
             $('#search-events').on('input', function() {
@@ -121,8 +148,24 @@
                     filterEvents();
                 }, 300);
             });
-            
+
             $('#filter-location, #filter-date').on('change', function() {
+                syncQuickFilterState($('#filter-date').val());
+                filterEvents();
+            });
+
+            $('.quick-filter-btn').on('click', function() {
+                const value = $(this).data('value');
+                $('#filter-date').val(value);
+                syncQuickFilterState(value);
+                filterEvents();
+            });
+
+            $('#reset-filters').on('click', function() {
+                $('#search-events').val('');
+                $('#filter-location').val('');
+                $('#filter-date').val('');
+                syncQuickFilterState('');
                 filterEvents();
             });
         });
@@ -159,6 +202,7 @@
 
             if (filteredEvents.length === 0) {
                 UIHelpers.showEmptyState('#events-container', 'No events found', '📅');
+                updateHeroStats(0);
                 return;
             }
 
@@ -168,6 +212,7 @@
 
             if (eventsToShow.length === 0) {
                 UIHelpers.showEmptyState('#events-container', 'No events available', '📅');
+                updateHeroStats(0);
                 return;
             }
 
@@ -204,6 +249,7 @@
             });
 
             container.html(html);
+            updateHeroStats(eventsToShow.length);
             if (AuthService.isAdmin() && !document.querySelector('.fab-create')) {
                 $('body').append('<a href="event-create.html" class="fab-create" aria-label="Create Event">+</a>');
             }
@@ -246,7 +292,24 @@
             
             renderEvents();
         }
-        
+
+        function syncQuickFilterState(value) {
+            $('.quick-filter-btn').removeClass('active');
+            const selector = `.quick-filter-btn[data-value="${value || ''}"]`;
+            const button = document.querySelector(selector);
+            if (button) {
+                button.classList.add('active');
+            }
+        }
+
+        function updateHeroStats(visibleCount) {
+            const now = new Date();
+            const upcomingCount = allEvents.filter(event => new Date(event.starts_at) > now).length;
+            $('#events-count').text(allEvents.length);
+            $('#upcoming-count').text(upcomingCount);
+            $('#visible-count').text(visibleCount);
+        }
+
         async function deleteEvent(eventId) {
             const confirmed = await UIHelpers.confirmDialog('Are you sure you want to delete this event? This action cannot be undone.');
             

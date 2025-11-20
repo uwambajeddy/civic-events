@@ -161,7 +161,7 @@ const AuthService = {
         localStorage.removeItem(CONFIG.STORAGE_KEYS.REMEMBER_ME);
         
         // Redirect to login
-        window.location.href = '/login.html';
+        window.location.href = '/frontend/login.html';
     },
     
     /**

@@ -230,13 +230,13 @@
                     }
                     
                     // Submit
-                    await ApiService.post('/announcements', formData);
+                    const response = await ApiService.post('/announcements', formData);
                     
                     UIHelpers.showToast('Announcement created successfully!', 'success');
                     
-                    // Redirect after delay
+                    // Redirect to detail page after delay
                     setTimeout(() => {
-                        window.location.href = 'announcements.html';
+                        window.location.href = `announcement-detail.html?id=${response.data.id}`;
                     }, 1500);
                     
                 } catch (error) {

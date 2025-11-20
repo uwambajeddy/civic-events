@@ -146,7 +146,7 @@
             
             // Render audio player
             const audioUrl = announcement.audio_url 
-                ? `${CONFIG.UPLOADS_BASE_URL}/announcements/${announcement.audio_url}`
+                ? (announcement.audio_url.startsWith('http') ? announcement.audio_url : `${CONFIG.UPLOADS_BASE_URL}/announcements/${announcement.audio_url}`)
                 : null;
             
             if (audioUrl) {
